@@ -1,28 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from typing import List
 
 from .database import get_db
-from .models import Comparison, Entity
+from .models import Comparison, ComparisonCreate, ComparisonOut, Entity
 from .rating import update_elo_ratings
 from .similarity import get_similar_entities
-from .security import rate_limit, check_user_comparison_limit
-from .mab import get_next_comparison as mab_next_comparison, update_mab
 
 router = APIRouter()
 
-class ComparisonCreate(BaseModel):
-    user_id: int
-    entity1_id: int
-    entity2_id: int
-    selected_entity_id: int
-
-@router.post("/comparisons/", response_model=Comparison)
-@rate_limit(max_requests=10, window_seconds=60)
+@router.post("/comparisons/", response_model=ComparisonOut)
 async def create_comparison(
     comparison: ComparisonCreate,
-    db: Session = Depends(get_db),
-    user: dict = Depends(check_user_comparison_limit)
+    db: Session = Depends(get_db)
 ):
     # Check if entities exist
     entity1 = db.query(Entity).filter(Entity.id == comparison.entity1_id).first()

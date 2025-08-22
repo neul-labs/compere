@@ -1,16 +1,10 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql import func
+from pydantic import BaseModel
+from typing import List, Optional
 
-from .database import Base
-
-class User(Base):
-    __tablename__ = "users"
-
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True)
-    email = Column(String, unique=True, index=True)
-    hashed_password = Column(String)
+Base = declarative_base()
 
 class Entity(Base):
     __tablename__ = "entities"
@@ -25,13 +19,38 @@ class Comparison(Base):
     __tablename__ = "comparisons"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
     entity1_id = Column(Integer, ForeignKey("entities.id"))
     entity2_id = Column(Integer, ForeignKey("entities.id"))
     selected_entity_id = Column(Integer, ForeignKey("entities.id"))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    user = relationship("User")
-    entity1 = relationship("Entity", foreign_keys=[entity1_id])
-    entity2 = relationship("Entity", foreign_keys=[entity2_id])
-    selected_entity = relationship("Entity", foreign_keys=[selected_entity_id])
+# Pydantic models for API responses
+class EntityCreate(BaseModel):
+    name: str
+    description: str
+    image_urls: List[str]
+
+class EntityOut(BaseModel):
+    id: int
+    name: str
+    description: str
+    image_urls: List[str]
+    rating: float
+
+    class Config:
+        from_attributes = True
+
+class ComparisonCreate(BaseModel):
+    entity1_id: int
+    entity2_id: int
+    selected_entity_id: int
+
+class ComparisonOut(BaseModel):
+    id: int
+    entity1_id: int
+    entity2_id: int
+    selected_entity_id: int
+    created_at: Optional[str] = None
+
+    class Config:
+        from_attributes = True
