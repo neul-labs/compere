@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from typing import List
+from sqlalchemy.exc import SQLAlchemyError
+from typing import List, Optional
 
 from .database import get_db
 from .models import Comparison, ComparisonCreate, ComparisonOut, Entity
@@ -14,26 +15,72 @@ async def create_comparison(
     comparison: ComparisonCreate,
     db: Session = Depends(get_db)
 ):
-    # Check if entities exist
-    entity1 = db.query(Entity).filter(Entity.id == comparison.entity1_id).first()
-    entity2 = db.query(Entity).filter(Entity.id == comparison.entity2_id).first()
-    if not entity1 or not entity2:
-        raise HTTPException(status_code=404, detail="One or both entities not found")
+    """Create a new comparison and update ratings"""
+    try:
+        # Check if entities exist
+        entity1 = db.query(Entity).filter(Entity.id == comparison.entity1_id).first()
+        entity2 = db.query(Entity).filter(Entity.id == comparison.entity2_id).first()
+        if not entity1 or not entity2:
+            raise HTTPException(status_code=404, detail="One or both entities not found")
 
-    # Create comparison
-    db_comparison = Comparison(**comparison.dict())
-    db.add(db_comparison)
-    db.commit()
-    db.refresh(db_comparison)
+        # Validate selected entity
+        if comparison.selected_entity_id not in [comparison.entity1_id, comparison.entity2_id]:
+            raise HTTPException(status_code=400, detail="Selected entity must be one of the compared entities")
 
-    # Update Elo ratings
-    update_elo_ratings(db, entity1, entity2, comparison.selected_entity_id)
+        # Create comparison
+        db_comparison = Comparison(**comparison.dict())
+        db.add(db_comparison)
+        db.commit()
+        db.refresh(db_comparison)
 
-    return db_comparison
+        # Update Elo ratings
+        update_elo_ratings(db, entity1, entity2, comparison.selected_entity_id)
+
+        return db_comparison
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+@router.get("/comparisons/", response_model=List[ComparisonOut])
+def list_comparisons(
+    skip: int = Query(0, ge=0, description="Number of comparisons to skip"),
+    limit: int = Query(100, ge=1, le=1000, description="Maximum number of comparisons to return"),
+    entity_id: Optional[int] = Query(None, description="Filter by entity ID"),
+    db: Session = Depends(get_db)
+):
+    """Get list of comparisons with optional filtering and pagination"""
+    try:
+        query = db.query(Comparison)
+
+        if entity_id:
+            query = query.filter(
+                (Comparison.entity1_id == entity_id) |
+                (Comparison.entity2_id == entity_id)
+            )
+
+        comparisons = query.order_by(Comparison.created_at.desc()).offset(skip).limit(limit).all()
+        return comparisons
+    except SQLAlchemyError as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+@router.get("/comparisons/{comparison_id}", response_model=ComparisonOut)
+def get_comparison(comparison_id: int, db: Session = Depends(get_db)):
+    """Get a single comparison by ID"""
+    try:
+        comparison = db.query(Comparison).filter(Comparison.id == comparison_id).first()
+        if comparison is None:
+            raise HTTPException(status_code=404, detail="Comparison not found")
+        return comparison
+    except SQLAlchemyError as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 @router.get("/comparisons/next")
-async def get_next_comparison(user_id: int, db: Session = Depends(get_db)):
-    entities = get_similar_entities(db)
-    if len(entities) < 2:
-        raise HTTPException(status_code=404, detail="Not enough entities for comparison")
-    return {"entity1": entities[0], "entity2": entities[1]}
+async def get_next_comparison(db: Session = Depends(get_db)):
+    """Get next pair of entities for comparison"""
+    try:
+        entities = get_similar_entities(db)
+        if len(entities) < 2:
+            raise HTTPException(status_code=404, detail="Not enough entities for comparison")
+        return {"entity1": entities[0], "entity2": entities[1]}
+    except SQLAlchemyError as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")

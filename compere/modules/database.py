@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # Database setup - default to SQLite if no DATABASE_URL is provided
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./comparative_rating_system.db")
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./compere.db")
 
 # For SQLite, we need to set check_same_thread to False
 # For other databases, we don't need this parameter

@@ -6,13 +6,27 @@ Whether you're building a recommendation system, a product comparison platform, 
 
 ## Key Features
 
-- **Multi-Armed Bandit (MAB) Algorithm**: Utilizes the Upper Confidence Bound (UCB) algorithm to balance exploration and exploitation in entity selection.
-- **Elo Rating System**: Implements Elo ratings for accurate and dynamic entity ranking.
-- **Cold-Start Problem Handling**: Prioritizes new entities to quickly integrate them into the comparison pool.
-- **Database Agnostic**: Works with any SQL database backend (SQLite, PostgreSQL, MySQL, etc.) with SQLite as the default.
-- **Modular Architecture**: Well-organized codebase with separate modules for different functionalities.
-- **RESTful API**: Provides a comprehensive API for entity management, comparisons, and system monitoring.
-- **Dual Usage**: Available as both a standalone web service and a Python library.
+### Core Algorithm Features
+- **Multi-Armed Bandit (MAB) Algorithm**: Utilizes the Upper Confidence Bound (UCB) algorithm with persistent state for intelligent entity selection
+- **Elo Rating System**: Implements configurable Elo ratings with K-factor tuning for accurate ranking
+- **Cold-Start Problem Handling**: Prioritizes new entities to quickly integrate them into the comparison pool
+- **Smart Entity Pairing**: Selects dissimilar entities for meaningful comparisons
+
+### Production-Ready Features
+- **Complete CRUD Operations**: Full Create, Read, Update, Delete support for entities with validation
+- **Comparison History**: Track and query all comparisons with filtering and pagination
+- **Authentication System**: JWT-based authentication with configurable security
+- **Rate Limiting**: Configurable rate limiting to prevent API abuse
+- **Error Handling**: Comprehensive error handling with proper rollbacks and logging
+- **Input Validation**: Robust validation for all inputs with detailed error messages
+
+### Technical Features
+- **Database Agnostic**: Works with SQLite, PostgreSQL, MySQL with proper connection management
+- **Environment Validation**: Startup validation of configuration and dependencies
+- **Request Logging**: Configurable request/response logging for monitoring
+- **Modular Architecture**: Well-organized codebase with separate modules and clear interfaces
+- **RESTful API**: Comprehensive API with OpenAPI/Swagger documentation
+- **Dual Usage**: Available as both a standalone web service and a Python library
 
 ## Use Cases
 
@@ -165,13 +179,59 @@ export DATABASE_URL=sqlite:///./compere.db
 
 When running as a standalone service, Compere provides the following RESTful API endpoints:
 
+#### Entity Management
 - `POST /entities/`: Create a new entity
+- `GET /entities/`: List entities with search and pagination
 - `GET /entities/{entity_id}`: Get an entity by ID
+- `PUT /entities/{entity_id}`: Update an existing entity
+- `DELETE /entities/{entity_id}`: Delete an entity
+
+#### Comparison Management
 - `POST /comparisons/`: Create a new comparison
+- `GET /comparisons/`: List comparisons with filtering and pagination
+- `GET /comparisons/{comparison_id}`: Get a specific comparison by ID
 - `GET /comparisons/next`: Get the next pair of entities to compare
+
+#### Rating System
 - `GET /ratings`: Get all entities ordered by rating
-- `GET /similar_entities`: Get similar entities
+- `GET /similar_entities`: Get dissimilar entities for comparison (renamed for backward compatibility)
+- `GET /dissimilar_entities`: Get dissimilar entities for meaningful comparisons
+
+#### Multi-Armed Bandit
 - `GET /mab/next_comparison`: Get the next comparison from the MAB algorithm
+- `POST /mab/update`: Update MAB state based on comparison result
+
+#### Authentication (when enabled)
+- `POST /auth/token`: Login to get JWT access token
+- `GET /auth/users/me`: Get current user information
+
+#### Configuration & Environment Variables
+
+Compere supports extensive configuration through environment variables:
+
+```bash
+# Database Configuration
+export DATABASE_URL=sqlite:///./compere.db  # SQLite (default)
+export DATABASE_URL=postgresql://user:pass@localhost/compere  # PostgreSQL
+export DATABASE_URL=mysql://user:pass@localhost/compere  # MySQL
+
+# Elo Rating Configuration
+export ELO_K_FACTOR=32.0  # Rating sensitivity (default: 32.0)
+
+# Authentication Configuration
+export AUTH_ENABLED=true  # Enable authentication (default: false)
+export SECRET_KEY=your-secret-key-here  # JWT secret key
+
+# Rate Limiting Configuration
+export RATE_LIMIT_ENABLED=true  # Enable rate limiting (default: false)
+export RATE_LIMIT_REQUESTS=100  # Requests per window (default: 100)
+export RATE_LIMIT_WINDOW=60  # Window in seconds (default: 60)
+
+# Logging Configuration
+export LOG_LEVEL=INFO  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+export LOG_REQUESTS=true  # Log HTTP requests (default: true)
+export ENVIRONMENT=production  # development, staging, production
+```
 
 For a complete list of endpoints and their usage, visit the Swagger UI at `http://localhost:8000/docs` when the application is running.
 

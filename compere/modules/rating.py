@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
@@ -6,7 +7,8 @@ from .models import Entity
 
 router = APIRouter()
 
-K_FACTOR = 32
+# Configurable K-factor for Elo rating system
+K_FACTOR = float(os.getenv("ELO_K_FACTOR", "32.0"))
 
 def expected_score(rating_a, rating_b):
     return 1 / (1 + 10 ** ((rating_b - rating_a) / 400))
