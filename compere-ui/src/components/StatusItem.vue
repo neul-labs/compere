@@ -1,8 +1,8 @@
 <template>
-  <div class="flex items-center justify-between p-3 rounded-lg bg-surface-100-800-token">
+  <div class="flex items-center justify-between p-3 rounded-lg bg-surface-100">
     <div class="flex items-center space-x-3">
-      <i :class="[icon, 'w-5 text-surface-600-300-token']"></i>
-      <span class="font-medium">{{ label }}</span>
+      <i :class="[icon, 'w-5 text-surface-500']"></i>
+      <span class="font-medium text-surface-700">{{ label }}</span>
     </div>
 
     <div class="flex items-center space-x-2">

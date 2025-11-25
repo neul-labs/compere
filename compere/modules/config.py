@@ -46,18 +46,21 @@ def validate_environment() -> Dict[str, Any]:
 
     # Check Python version
     python_version = sys.version_info
-    if python_version < (3, 8):
-        errors.append(f"Python 3.8+ required, found {python_version.major}.{python_version.minor}")
+    if python_version < (3, 11):
+        errors.append(f"Python 3.11+ required, found {python_version.major}.{python_version.minor}")
 
     # Check required dependencies
     try:
-        import fastapi
-        import sqlalchemy
-        import numpy
-        import sklearn
-        config["dependencies_ok"] = True
-    except ImportError as e:
-        errors.append(f"Missing required dependency: {e}")
+        from importlib.util import find_spec
+        required_deps = ["fastapi", "sqlalchemy", "numpy", "sklearn"]
+        missing = [dep for dep in required_deps if find_spec(dep) is None]
+        if missing:
+            errors.append(f"Missing required dependencies: {', '.join(missing)}")
+            config["dependencies_ok"] = False
+        else:
+            config["dependencies_ok"] = True
+    except Exception as e:
+        errors.append(f"Error checking dependencies: {e}")
         config["dependencies_ok"] = False
 
     # Rate limiting configuration

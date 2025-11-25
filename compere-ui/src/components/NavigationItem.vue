@@ -5,7 +5,7 @@
       'flex items-center space-x-3 px-3 py-2 rounded-lg font-medium transition-all duration-200',
       isActive
         ? 'bg-primary-500 text-white shadow-md'
-        : 'text-surface-700-200-token hover:bg-surface-200-700-token hover:text-primary-500'
+        : 'text-surface-700 hover:bg-surface-200 hover:text-primary-600'
     ]"
     @click="$emit('navigate')"
   >

@@ -1,14 +1,11 @@
 # main.py
-import os
 import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
 from .modules.database import Base, engine
-from .modules.models import Entity, Comparison, MABState  # Import models to register them
+from .modules.models import Entity, Comparison, MABState  # noqa: F401 - Import models to register them with SQLAlchemy
 from .modules.entity import router as EntityRouter
 from .modules.comparison import router as ComparisonRouter
 from .modules.rating import router as RatingRouter

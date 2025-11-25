@@ -1,134 +1,94 @@
 <template>
-  <nav class="h-full p-4 space-y-2 bg-surface-100-800-token">
+  <nav class="w-64 h-screen bg-surface-900 text-white p-4 flex flex-col sticky top-0 overflow-hidden">
     <!-- Logo -->
-    <div class="flex items-center space-x-3 pb-4 border-b border-surface-300-600-token">
+    <div class="flex items-center space-x-3 pb-6 border-b border-surface-700">
       <div class="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
         <i class="fas fa-chart-line text-white text-lg"></i>
       </div>
       <div>
-        <h2 class="h4 font-bold">Compere</h2>
-        <p class="text-xs text-surface-600-300-token">Rating System</p>
+        <h2 class="text-lg font-bold">Compere</h2>
+        <p class="text-xs text-surface-400">Rating System</p>
       </div>
     </div>
 
     <!-- Navigation Items -->
-    <div class="space-y-1">
-      <NavigationItem
+    <div class="flex-1 py-6 space-y-1">
+      <router-link
         to="/"
-        icon="fas fa-home"
-        label="Dashboard"
-        :isActive="$route.name === 'Dashboard'"
-      />
-
-      <NavigationItem
-        to="/entities"
-        icon="fas fa-database"
-        label="Entities"
-        :isActive="$route.name === 'EntityManager'"
-      />
-
-      <NavigationItem
-        to="/compare"
-        icon="fas fa-balance-scale"
-        label="Compare"
-        :isActive="$route.name === 'Comparison'"
-      />
-
-      <NavigationItem
-        to="/leaderboard"
-        icon="fas fa-trophy"
-        label="Leaderboard"
-        :isActive="$route.name === 'Leaderboard'"
-      />
-
-      <NavigationItem
-        to="/analytics"
-        icon="fas fa-chart-bar"
-        label="Analytics"
-        :isActive="$route.name === 'Analytics'"
-      />
-
-      <NavigationItem
-        to="/simulations"
-        icon="fas fa-play-circle"
-        label="Simulations"
-        :isActive="$route.name === 'Simulations'"
-      />
-
-      <!-- Separator -->
-      <hr class="!my-4 opacity-20">
-
-      <!-- Authentication -->
-      <NavigationItem
-        v-if="!authStore.isAuthenticated"
-        to="/auth"
-        icon="fas fa-sign-in-alt"
-        label="Login"
-        :isActive="$route.name === 'Auth'"
-      />
-
-      <button
-        v-else
-        @click="authStore.logout"
-        class="w-full text-left px-3 py-2 rounded-lg hover:bg-surface-200-700-token transition-colors flex items-center space-x-3 text-error-500"
+        class="nav-item"
+        :class="{ 'nav-item-active': $route.path === '/' }"
       >
-        <i class="fas fa-sign-out-alt w-5"></i>
-        <span class="font-medium">Logout</span>
-      </button>
+        <i class="fas fa-home w-5"></i>
+        <span>Dashboard</span>
+      </router-link>
+
+      <router-link
+        to="/entities"
+        class="nav-item"
+        :class="{ 'nav-item-active': $route.path === '/entities' }"
+      >
+        <i class="fas fa-database w-5"></i>
+        <span>Entities</span>
+      </router-link>
+
+      <router-link
+        to="/compare"
+        class="nav-item"
+        :class="{ 'nav-item-active': $route.path === '/compare' }"
+      >
+        <i class="fas fa-balance-scale w-5"></i>
+        <span>Compare</span>
+      </router-link>
+
+      <router-link
+        to="/leaderboard"
+        class="nav-item"
+        :class="{ 'nav-item-active': $route.path === '/leaderboard' }"
+      >
+        <i class="fas fa-trophy w-5"></i>
+        <span>Leaderboard</span>
+      </router-link>
+
+      <router-link
+        to="/analytics"
+        class="nav-item"
+        :class="{ 'nav-item-active': $route.path === '/analytics' }"
+      >
+        <i class="fas fa-chart-bar w-5"></i>
+        <span>Analytics</span>
+      </router-link>
+
+      <router-link
+        to="/simulations"
+        class="nav-item"
+        :class="{ 'nav-item-active': $route.path === '/simulations' }"
+      >
+        <i class="fas fa-play-circle w-5"></i>
+        <span>Simulations</span>
+      </router-link>
     </div>
 
-    <!-- User Info (if authenticated) -->
-    <div
-      v-if="authStore.user"
-      class="mt-auto pt-4 border-t border-surface-300-600-token"
-    >
-      <div class="flex items-center space-x-3 p-3 rounded-lg bg-surface-200-700-token">
-        <div class="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
-          <span class="text-white text-sm font-bold">
-            {{ getUserInitials(authStore.user.username) }}
-          </span>
-        </div>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium truncate">{{ authStore.user.username }}</p>
-          <p class="text-xs text-surface-600-300-token truncate">
-            {{ authStore.user.email || 'User' }}
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Version Info -->
-    <div class="mt-auto pt-4">
-      <div class="text-xs text-surface-500-400-token text-center">
-        <p>Compere UI v0.1.0</p>
-        <p>Built with Vue.js & Skeleton</p>
+    <!-- Footer -->
+    <div class="pt-4 border-t border-surface-700">
+      <div class="text-xs text-surface-500 text-center">
+        <p>Compere v0.1.0</p>
       </div>
     </div>
   </nav>
 </template>
 
 <script setup>
-import { computed } from 'vue'
 import { useAuthStore } from '../stores/auth.js'
-import NavigationItem from './NavigationItem.vue'
 
 const authStore = useAuthStore()
-
-const getUserInitials = (username) => {
-  if (!username) return '?'
-  return username.charAt(0).toUpperCase()
-}
 </script>
 
 <style scoped>
-nav {
-  width: 280px;
-  min-height: 100vh;
+.nav-item {
+  @apply flex items-center space-x-3 px-3 py-2.5 rounded-lg text-surface-300 hover:bg-surface-800 hover:text-white transition-colors;
 }
 
-@media (max-width: 1024px) {
-  nav {
-    width: 240px;
-  }
+.nav-item-active {
+  @apply bg-primary-600 text-white hover:bg-primary-600;
 }
 </style>

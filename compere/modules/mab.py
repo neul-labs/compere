@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-import numpy as np
+from sqlalchemy import func
 from math import sqrt, log
+import random
 
 from .database import get_db
-from .models import Entity, Comparison, MABState
+from .models import Entity, Comparison, MABState, NextComparisonResponse, MessageResponse
 
 router = APIRouter()
 
@@ -29,24 +30,110 @@ class UCB:
                 self.db.add(mab_state)
         self.db.commit()
 
-    def select_arm(self):
-        """Select arm using UCB algorithm"""
+    def get_ucb_scores(self):
+        """Calculate UCB scores for all entities"""
         states = self.db.query(MABState).all()
         if not states:
-            return None
+            return {}
 
         total_count = sum(state.total_count for state in states)
         if total_count == 0:
-            # If no trials yet, select randomly
-            return states[0].entity_id
+            total_count = 1  # Avoid log(0)
 
-        ucb_values = {}
+        ucb_scores = {}
         for state in states:
             if state.count == 0:
-                return state.entity_id
-            ucb_values[state.entity_id] = state.value + sqrt(2 * log(total_count) / state.count)
+                # Entities with no comparisons get infinite UCB (prioritize exploration)
+                ucb_scores[state.entity_id] = float('inf')
+            else:
+                ucb_scores[state.entity_id] = state.value + sqrt(2 * log(total_count) / state.count)
 
-        return max(ucb_values, key=ucb_values.get)
+        return ucb_scores
+
+    def select_pair(self, exclude_recent=True):
+        """Select a pair of entities for comparison using UCB"""
+        entities = self.db.query(Entity).all()
+        if len(entities) < 2:
+            return None, None
+
+        ucb_scores = self.get_ucb_scores()
+
+        # Select first entity using weighted random based on UCB scores
+        # This adds exploration while still favoring high UCB entities
+        weights = []
+        for entity in entities:
+            score = ucb_scores.get(entity.id, 0)
+            # Handle infinite scores (unexplored entities)
+            if score == float('inf'):
+                weights.append(1000.0)  # High weight for unexplored
+            else:
+                weights.append(max(score, 0.1))  # Ensure positive weight
+
+        # Normalize weights
+        total_weight = sum(weights)
+        weights = [w / total_weight for w in weights]
+
+        # Weighted random selection for first entity
+        entity1 = random.choices(entities, weights=weights, k=1)[0]
+
+        # For second entity, use a mixed strategy:
+        # 1. Prioritize entities with fewer comparisons against entity1
+        # 2. Consider rating similarity for informative comparisons
+        # 3. Add some randomness for variety
+
+        remaining_entities = [e for e in entities if e.id != entity1.id]
+
+        if exclude_recent:
+            # Get entities that entity1 was recently compared with
+            recent_comparisons = self.db.query(Comparison).filter(
+                (Comparison.entity1_id == entity1.id) | (Comparison.entity2_id == entity1.id)
+            ).order_by(Comparison.created_at.desc()).limit(min(5, len(remaining_entities) - 1)).all()
+
+            recent_opponent_ids = set()
+            for comp in recent_comparisons:
+                if comp.entity1_id == entity1.id:
+                    recent_opponent_ids.add(comp.entity2_id)
+                else:
+                    recent_opponent_ids.add(comp.entity1_id)
+
+            # Filter out recently compared entities if we have enough alternatives
+            non_recent = [e for e in remaining_entities if e.id not in recent_opponent_ids]
+            if non_recent:
+                remaining_entities = non_recent
+
+        # Score remaining entities for selection
+        entity_scores = []
+        for entity in remaining_entities:
+            score = 0
+
+            # Factor 1: UCB score (exploration value)
+            score += ucb_scores.get(entity.id, 0) * 0.3
+
+            # Factor 2: Rating similarity (more informative comparisons)
+            rating_diff = abs(entity1.rating - entity.rating)
+            # Prefer entities within 200 rating points
+            if rating_diff < 200:
+                score += (200 - rating_diff) / 200 * 0.4
+
+            # Factor 3: Randomness for variety
+            score += random.random() * 0.3
+
+            entity_scores.append((entity, score))
+
+        # Sort by score and pick the best
+        entity_scores.sort(key=lambda x: x[1], reverse=True)
+        entity2 = entity_scores[0][0]
+
+        return entity1, entity2
+
+    def select_arm(self):
+        """Select single arm using UCB algorithm (for backwards compatibility)"""
+        ucb_scores = self.get_ucb_scores()
+        if not ucb_scores:
+            return None
+
+        # Return entity with highest UCB score
+        return max(ucb_scores, key=ucb_scores.get)
 
     def update(self, entity_id: int, reward: float):
         """Update MAB state for given entity"""
@@ -55,38 +142,32 @@ class UCB:
             state.count += 1
             n = state.count
             state.value = ((n - 1) / n) * state.value + (1 / n) * reward
-            state.total_count += 1
+
+            # Update total_count for all states
+            all_states = self.db.query(MABState).all()
+            for s in all_states:
+                s.total_count = sum(st.count for st in all_states)
+
             self.db.commit()
 
-@router.get("/mab/next_comparison")
-def get_next_comparison(db: Session = Depends(get_db)):
+@router.get("/mab/next_comparison", response_model=NextComparisonResponse)
+def get_mab_next_comparison(db: Session = Depends(get_db)):
     """Get next comparison using MAB algorithm"""
     entities = db.query(Entity).all()
     if len(entities) < 2:
         raise HTTPException(status_code=400, detail="Need at least 2 entities for comparison")
 
     ucb = UCB(db)
+    entity1, entity2 = ucb.select_pair(exclude_recent=True)
 
-    entity1_id = ucb.select_arm()
-    entity2_id = ucb.select_arm()
-
-    # Ensure we get two different entities
-    attempts = 0
-    while entity2_id == entity1_id and attempts < 10:
-        entity2_id = ucb.select_arm()
-        attempts += 1
-
-    if entity2_id == entity1_id:
-        # Fallback: just pick two different entities
-        entity_ids = [e.id for e in entities]
-        entity1_id, entity2_id = entity_ids[0], entity_ids[1]
-
-    entity1 = db.query(Entity).get(entity1_id)
-    entity2 = db.query(Entity).get(entity2_id)
+    if entity1 is None or entity2 is None:
+        # Fallback: random selection
+        selected = random.sample(entities, 2)
+        entity1, entity2 = selected[0], selected[1]
 
     return {"entity1": entity1, "entity2": entity2}
 
-@router.post("/mab/update")
+@router.post("/mab/update", response_model=MessageResponse)
 def update_mab(comparison_id: int, db: Session = Depends(get_db)):
     """Update MAB state based on comparison result"""
     comparison = db.query(Comparison).get(comparison_id)

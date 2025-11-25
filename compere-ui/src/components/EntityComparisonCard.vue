@@ -6,7 +6,7 @@
   >
     <!-- Entity Image -->
     <div class="relative mb-4">
-      <div class="w-full h-48 bg-surface-200-700-token rounded-lg overflow-hidden">
+      <div class="w-full h-48 bg-surface-200 rounded-lg overflow-hidden">
         <img
           v-if="entity.image_urls && entity.image_urls[0]"
           :src="entity.image_urls[0]"
@@ -16,7 +16,7 @@
         >
         <div
           v-else
-          class="w-full h-full flex items-center justify-center text-surface-500-400-token"
+          class="w-full h-full flex items-center justify-center text-surface-400"
         >
           <i class="fas fa-image text-4xl"></i>
         </div>
@@ -46,17 +46,17 @@
     <!-- Entity Details -->
     <div class="space-y-3">
       <div>
-        <h3 class="text-xl font-bold text-surface-900-50-token truncate">
+        <h3 class="text-xl font-bold text-surface-900 truncate">
           {{ entity.name }}
         </h3>
-        <p class="text-surface-600-300-token text-sm line-clamp-2">
+        <p class="text-surface-500 text-sm line-clamp-2">
           {{ entity.description }}
         </p>
       </div>
 
       <!-- Metadata -->
       <div class="flex items-center justify-between text-sm">
-        <div class="flex items-center space-x-2 text-surface-500-400-token">
+        <div class="flex items-center space-x-2 text-surface-400">
           <i class="fas fa-star"></i>
           <span>Rating</span>
         </div>
@@ -68,7 +68,7 @@
       <!-- Action Button -->
       <button
         :disabled="loading"
-        class="w-full btn variant-filled-primary mt-4"
+        class="w-full btn btn-primary mt-4"
       >
         <i v-if="loading" class="fas fa-spinner fa-spin"></i>
         <i v-else class="fas fa-hand-pointer"></i>

@@ -4,8 +4,8 @@ Middleware for rate limiting and other cross-cutting concerns
 import os
 import time
 import logging
-from typing import Dict, Optional
-from fastapi import Request, HTTPException, status
+from typing import Dict
+from fastapi import Request, status
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from collections import defaultdict, deque

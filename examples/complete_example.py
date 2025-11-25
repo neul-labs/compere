@@ -109,16 +109,16 @@ def api_usage_example():
     print("API USAGE EXAMPLE")
     print("=" * 50)
 
-    base_url = "http://localhost:8000"
+    base_url = "http://localhost:8090"
 
     # Check if server is running
     try:
         response = requests.get(f"{base_url}/docs")
         if response.status_code != 200:
-            print("❌ Server not running. Start with: compere --host localhost --port 8000")
+            print("❌ Server not running. Start with: uv run compere")
             return
     except requests.ConnectionError:
-        print("❌ Server not running. Start with: compere --host localhost --port 8000")
+        print("❌ Server not running. Start with: uv run compere")
         return
 
     print("✅ Server is running!")
@@ -222,7 +222,7 @@ def main():
     """Run all examples"""
     print("COMPERE - Comprehensive Usage Examples")
     print("This example demonstrates library usage, API interaction, and configuration.")
-    print("\nNote: For API examples, start the server first with: compere --port 8000")
+    print("\nNote: For API examples, start the server first with: uv run compere")
 
     # Always run library example
     library_usage_example()
@@ -238,10 +238,10 @@ def main():
     print("EXAMPLE COMPLETED")
     print("=" * 50)
     print("Next steps:")
-    print("1. Install dependencies: pip install -e .")
-    print("2. Start server: compere --port 8000")
-    print("3. Visit http://localhost:8000/docs for API documentation")
-    print("4. Run tests: python -m pytest tests/")
+    print("1. Install dependencies: uv sync")
+    print("2. Start server: uv run compere")
+    print("3. Visit http://localhost:8090/docs for API documentation")
+    print("4. Run tests: uv run pytest")
 
 if __name__ == "__main__":
     main()
