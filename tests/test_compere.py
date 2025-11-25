@@ -2,23 +2,30 @@
 Unit tests for the Compere library.
 """
 
-import pytest
 import os
 import sys
+
+import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from fastapi.testclient import TestClient
 
 # Add the compere package to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from compere.modules.database import Base
-from compere.modules.models import EntityCreate, ComparisonCreate, Entity, Comparison, MABState
-from compere.modules.entity import create_entity
-from compere.modules.comparison import create_comparison
-from compere.modules.rating import update_elo_ratings, expected_score
-from compere.modules.mab import UCB
 from compere.main import app
+from compere.modules.comparison import create_comparison
+from compere.modules.database import Base
+from compere.modules.entity import create_entity
+from compere.modules.mab import UCB
+from compere.modules.models import (
+    Comparison,
+    ComparisonCreate,
+    Entity,
+    EntityCreate,
+    MABState,
+)
+from compere.modules.rating import expected_score, update_elo_ratings
 
 # Test database setup
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"

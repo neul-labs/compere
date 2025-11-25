@@ -1,14 +1,15 @@
 """
 Middleware for rate limiting and other cross-cutting concerns
 """
+import logging
 import os
 import time
-import logging
+from collections import defaultdict, deque
 from typing import Dict
+
 from fastapi import Request, status
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
-from collections import defaultdict, deque
 
 logger = logging.getLogger(__name__)
 

@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import SQLAlchemyError
 from typing import List
+
 import numpy as np
+from fastapi import APIRouter, Depends, HTTPException
 from sklearn.metrics.pairwise import cosine_similarity
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
 
 from .database import get_db
 from .models import Entity, EntityOut

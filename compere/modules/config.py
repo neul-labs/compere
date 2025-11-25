@@ -1,10 +1,11 @@
 """
 Configuration and environment validation module
 """
+import logging
 import os
 import sys
-import logging
-from typing import Dict, Any
+from typing import Any, Dict
+
 
 def validate_environment() -> Dict[str, Any]:
     """Validate environment variables and dependencies"""

@@ -1,10 +1,17 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import SQLAlchemyError
 from typing import List, Optional
 
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
+
 from .database import get_db
-from .models import Comparison, ComparisonCreate, ComparisonOut, Entity, NextComparisonResponse
+from .models import (
+    Comparison,
+    ComparisonCreate,
+    ComparisonOut,
+    Entity,
+    NextComparisonResponse,
+)
 from .rating import update_elo_ratings
 from .similarity import get_dissimilar_entities
 

@@ -1,9 +1,12 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, JSON
-from sqlalchemy.sql import func
-from pydantic import BaseModel, validator
 from typing import List, Optional
+
+from pydantic import BaseModel, validator
+from sqlalchemy import JSON, Column, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy.sql import func
+
 from .database import Base
+
 
 class Entity(Base):
     __tablename__ = "entities"

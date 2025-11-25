@@ -1,11 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from sqlalchemy import func
-from math import sqrt, log
 import random
+from math import log, sqrt
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import func
+from sqlalchemy.orm import Session
 
 from .database import get_db
-from .models import Entity, Comparison, MABState, NextComparisonResponse, MessageResponse
+from .models import (
+    Comparison,
+    Entity,
+    MABState,
+    MessageResponse,
+    NextComparisonResponse,
+)
 
 router = APIRouter()
 

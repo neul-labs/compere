@@ -4,11 +4,12 @@ Complete example demonstrating all Compere features.
 This example shows both library usage and API interaction.
 """
 
+import json
 import os
 import sys
-import json
+from typing import Dict, List
+
 import requests
-from typing import List, Dict
 
 # Add the compere package to the path for library usage
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
@@ -21,10 +22,16 @@ def library_usage_example():
 
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker
+
     from compere.modules.database import Base
-    from compere.modules.models import EntityCreate, ComparisonCreate, Entity, Comparison
-    from compere.modules.rating import update_elo_ratings
     from compere.modules.mab import UCB
+    from compere.modules.models import (
+        Comparison,
+        ComparisonCreate,
+        Entity,
+        EntityCreate,
+    )
+    from compere.modules.rating import update_elo_ratings
 
     # Use in-memory SQLite database
     engine = create_engine("sqlite:///:memory:")
