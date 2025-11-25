@@ -1,3 +1,4 @@
+import os
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -7,13 +8,16 @@ from sqlalchemy.orm import Session
 from .database import get_db
 from .models import Entity, EntityCreate, EntityOut, EntityUpdate, MessageResponse
 
+# Elo configuration
+ELO_INITIAL_RATING = float(os.getenv("ELO_INITIAL_RATING", "1500.0"))
+
 router = APIRouter()
 
 @router.post("/entities/", response_model=EntityOut)
 def create_entity(entity: EntityCreate, db: Session = Depends(get_db)):
     """Create a new entity"""
     try:
-        db_entity = Entity(**entity.model_dump())
+        db_entity = Entity(**entity.model_dump(), rating=ELO_INITIAL_RATING)
         db.add(db_entity)
         db.commit()
         db.refresh(db_entity)

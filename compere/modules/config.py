@@ -69,6 +69,24 @@ def validate_environment() -> Dict[str, Any]:
     config["rate_limit_requests"] = int(os.getenv("RATE_LIMIT_REQUESTS", "100"))
     config["rate_limit_window"] = int(os.getenv("RATE_LIMIT_WINDOW", "60"))
 
+    # Elo rating configuration
+    config["elo_initial_rating"] = float(os.getenv("ELO_INITIAL_RATING", "1500.0"))
+
+    # UCB/MAB configuration
+    config["ucb_exploration_constant"] = float(os.getenv("UCB_EXPLORATION_CONSTANT", "1.414"))  # sqrt(2)
+    config["ucb_unexplored_weight"] = float(os.getenv("UCB_UNEXPLORED_WEIGHT", "1000.0"))
+
+    # Pairing weights (should sum to 1.0)
+    config["pairing_ucb_weight"] = float(os.getenv("PAIRING_UCB_WEIGHT", "0.3"))
+    config["pairing_similarity_weight"] = float(os.getenv("PAIRING_SIMILARITY_WEIGHT", "0.4"))
+    config["pairing_random_weight"] = float(os.getenv("PAIRING_RANDOM_WEIGHT", "0.3"))
+
+    # Rating similarity threshold for pairing bonus
+    config["pairing_rating_threshold"] = float(os.getenv("PAIRING_RATING_THRESHOLD", "200.0"))
+
+    # Recent comparison exclusion
+    config["recent_comparison_limit"] = int(os.getenv("RECENT_COMPARISON_LIMIT", "5"))
+
     # Authentication configuration
     config["auth_enabled"] = os.getenv("AUTH_ENABLED", "false").lower() == "true"
     config["secret_key"] = os.getenv("SECRET_KEY")

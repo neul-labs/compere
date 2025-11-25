@@ -14,9 +14,7 @@ from sqlalchemy.orm import sessionmaker
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from compere.main import app
-from compere.modules.comparison import create_comparison
 from compere.modules.database import Base
-from compere.modules.entity import create_entity
 from compere.modules.mab import UCB
 from compere.modules.models import (
     Comparison,
@@ -160,7 +158,7 @@ class TestMAB:
 
     def test_ucb_initialization(self, db_session, sample_entities):
         """Test UCB initialization"""
-        ucb = UCB(db_session)
+        _ucb = UCB(db_session)  # noqa: F841 - UCB init creates MAB states as side effect
 
         # Check that MAB states are created
         states = db_session.query(MABState).all()
