@@ -1,9 +1,12 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, JSON
-from sqlalchemy.sql import func
-from pydantic import BaseModel, validator
+from datetime import datetime
 from typing import List, Optional
-import json
+
+from pydantic import BaseModel, validator
+from sqlalchemy import JSON, Column, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy.sql import func
+
 from .database import Base
+
 
 class Entity(Base):
     __tablename__ = "entities"
@@ -117,7 +120,14 @@ class ComparisonOut(BaseModel):
     entity1_id: int
     entity2_id: int
     selected_entity_id: int
-    created_at: Optional[str] = None
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
+
+class MessageResponse(BaseModel):
+    message: str
+
+class NextComparisonResponse(BaseModel):
+    entity1: EntityOut
+    entity2: EntityOut

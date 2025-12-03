@@ -1,10 +1,11 @@
 """
 Configuration and environment validation module
 """
+import logging
 import os
 import sys
-import logging
-from typing import Dict, Any
+from typing import Any, Dict
+
 
 def validate_environment() -> Dict[str, Any]:
     """Validate environment variables and dependencies"""
@@ -46,24 +47,45 @@ def validate_environment() -> Dict[str, Any]:
 
     # Check Python version
     python_version = sys.version_info
-    if python_version < (3, 8):
-        errors.append(f"Python 3.8+ required, found {python_version.major}.{python_version.minor}")
+    if python_version < (3, 11):
+        errors.append(f"Python 3.11+ required, found {python_version.major}.{python_version.minor}")
 
     # Check required dependencies
     try:
-        import fastapi
-        import sqlalchemy
-        import numpy
-        import sklearn
-        config["dependencies_ok"] = True
-    except ImportError as e:
-        errors.append(f"Missing required dependency: {e}")
+        from importlib.util import find_spec
+        required_deps = ["fastapi", "sqlalchemy", "numpy", "sklearn"]
+        missing = [dep for dep in required_deps if find_spec(dep) is None]
+        if missing:
+            errors.append(f"Missing required dependencies: {', '.join(missing)}")
+            config["dependencies_ok"] = False
+        else:
+            config["dependencies_ok"] = True
+    except Exception as e:
+        errors.append(f"Error checking dependencies: {e}")
         config["dependencies_ok"] = False
 
     # Rate limiting configuration
     config["rate_limit_enabled"] = os.getenv("RATE_LIMIT_ENABLED", "false").lower() == "true"
     config["rate_limit_requests"] = int(os.getenv("RATE_LIMIT_REQUESTS", "100"))
     config["rate_limit_window"] = int(os.getenv("RATE_LIMIT_WINDOW", "60"))
+
+    # Elo rating configuration
+    config["elo_initial_rating"] = float(os.getenv("ELO_INITIAL_RATING", "1500.0"))
+
+    # UCB/MAB configuration
+    config["ucb_exploration_constant"] = float(os.getenv("UCB_EXPLORATION_CONSTANT", "1.414"))  # sqrt(2)
+    config["ucb_unexplored_weight"] = float(os.getenv("UCB_UNEXPLORED_WEIGHT", "1000.0"))
+
+    # Pairing weights (should sum to 1.0)
+    config["pairing_ucb_weight"] = float(os.getenv("PAIRING_UCB_WEIGHT", "0.3"))
+    config["pairing_similarity_weight"] = float(os.getenv("PAIRING_SIMILARITY_WEIGHT", "0.4"))
+    config["pairing_random_weight"] = float(os.getenv("PAIRING_RANDOM_WEIGHT", "0.3"))
+
+    # Rating similarity threshold for pairing bonus
+    config["pairing_rating_threshold"] = float(os.getenv("PAIRING_RATING_THRESHOLD", "200.0"))
+
+    # Recent comparison exclusion
+    config["recent_comparison_limit"] = int(os.getenv("RECENT_COMPARISON_LIMIT", "5"))
 
     # Authentication configuration
     config["auth_enabled"] = os.getenv("AUTH_ENABLED", "false").lower() == "true"

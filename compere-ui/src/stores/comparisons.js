@@ -88,6 +88,9 @@ export const useComparisonsStore = defineStore('comparisons', () => {
 
   const getMabSuggestion = async () => {
     try {
+      // Clear current suggestion to force UI update
+      mabSuggestion.value = null
+
       const response = await mabApi.getNextComparison()
       mabSuggestion.value = response.data
 

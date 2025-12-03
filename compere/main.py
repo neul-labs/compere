@@ -1,22 +1,24 @@
 # main.py
-import os
 import logging
+
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from dotenv import load_dotenv
 
-from .modules.database import Base, engine
-from .modules.models import Entity, Comparison, MABState  # Import models to register them
-from .modules.entity import router as EntityRouter
+from .modules.auth import router as AuthRouter
 from .modules.comparison import router as ComparisonRouter
+from .modules.config import get_config
+from .modules.database import Base, engine
+from .modules.entity import router as EntityRouter
+from .modules.mab import router as MABRouter
+from .modules.middleware import create_logging_middleware, create_rate_limit_middleware
+from .modules.models import (  # noqa: F401 - Import models to register them with SQLAlchemy
+    Comparison,
+    Entity,
+    MABState,
+)
 from .modules.rating import router as RatingRouter
 from .modules.similarity import router as SimilarityRouter
-from .modules.mab import router as MABRouter
-from .modules.auth import router as AuthRouter
-from .modules.config import get_config
-from .modules.middleware import create_rate_limit_middleware, create_logging_middleware
 
 load_dotenv()
 

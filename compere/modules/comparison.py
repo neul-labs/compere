@@ -1,12 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import SQLAlchemyError
 from typing import List, Optional
 
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
+
 from .database import get_db
-from .models import Comparison, ComparisonCreate, ComparisonOut, Entity
+from .models import (
+    Comparison,
+    ComparisonCreate,
+    ComparisonOut,
+    Entity,
+    NextComparisonResponse,
+)
 from .rating import update_elo_ratings
-from .similarity import get_similar_entities
+from .similarity import get_dissimilar_entities
 
 router = APIRouter()
 
@@ -28,7 +35,7 @@ async def create_comparison(
             raise HTTPException(status_code=400, detail="Selected entity must be one of the compared entities")
 
         # Create comparison
-        db_comparison = Comparison(**comparison.dict())
+        db_comparison = Comparison(**comparison.model_dump())
         db.add(db_comparison)
         db.commit()
         db.refresh(db_comparison)
@@ -63,6 +70,19 @@ def list_comparisons(
     except SQLAlchemyError as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
+# NOTE: This route MUST be defined BEFORE /comparisons/{comparison_id}
+# otherwise "next" gets interpreted as a comparison_id parameter
+@router.get("/comparisons/next", response_model=NextComparisonResponse)
+async def get_next_comparison(db: Session = Depends(get_db)):
+    """Get next pair of entities for comparison using similarity"""
+    try:
+        entities = get_dissimilar_entities(db)
+        if len(entities) < 2:
+            raise HTTPException(status_code=404, detail="Not enough entities for comparison")
+        return {"entity1": entities[0], "entity2": entities[1]}
+    except SQLAlchemyError as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
 @router.get("/comparisons/{comparison_id}", response_model=ComparisonOut)
 def get_comparison(comparison_id: int, db: Session = Depends(get_db)):
     """Get a single comparison by ID"""
@@ -71,16 +91,5 @@ def get_comparison(comparison_id: int, db: Session = Depends(get_db)):
         if comparison is None:
             raise HTTPException(status_code=404, detail="Comparison not found")
         return comparison
-    except SQLAlchemyError as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
-
-@router.get("/comparisons/next")
-async def get_next_comparison(db: Session = Depends(get_db)):
-    """Get next pair of entities for comparison"""
-    try:
-        entities = get_similar_entities(db)
-        if len(entities) < 2:
-            raise HTTPException(status_code=404, detail="Not enough entities for comparison")
-        return {"entity1": entities[0], "entity2": entities[1]}
     except SQLAlchemyError as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")

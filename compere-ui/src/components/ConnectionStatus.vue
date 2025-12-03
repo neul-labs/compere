@@ -12,7 +12,7 @@
     <span
       :class="[
         'text-sm font-medium hidden sm:inline',
-        isConnected ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+        isConnected ? 'text-green-600' : 'text-red-600'
       ]"
     >
       {{ statusText }}
@@ -23,7 +23,7 @@
       v-if="!isConnected"
       @click="checkConnection"
       :disabled="checking"
-      class="btn btn-sm variant-ghost-surface"
+      class="btn btn-sm btn-ghost"
       title="Retry Connection"
     >
       <i :class="['fas', checking ? 'fa-spinner fa-spin' : 'fa-sync-alt']"></i>

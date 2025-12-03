@@ -1,26 +1,26 @@
 <template>
   <div class="space-y-8">
     <div class="text-center">
-      <h1 class="h1 font-bold text-surface-900-50-token mb-4">Analytics & History</h1>
-      <p class="text-surface-600-300-token text-lg">Comparison history and system insights</p>
+      <h1 class="text-2xl font-bold text-surface-900 mb-4">Analytics & History</h1>
+      <p class="text-surface-600 text-lg">Comparison history and system insights</p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
       <!-- Recent Comparisons -->
       <div class="card p-6">
-        <h2 class="h3 font-bold mb-6">Recent Comparisons</h2>
+        <h2 class="text-lg font-bold text-surface-900 mb-6">Recent Comparisons</h2>
         <div class="space-y-4">
           <div
             v-for="comparison in recentComparisons.slice(0, 10)"
             :key="comparison.id"
-            class="flex items-center space-x-4 p-3 rounded-lg bg-surface-100-800-token"
+            class="flex items-center space-x-4 p-3 rounded-lg bg-surface-100"
           >
             <div class="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center text-white text-sm">
               {{ comparison.id }}
             </div>
             <div class="flex-1">
-              <p class="font-medium">Comparison #{{ comparison.id }}</p>
-              <p class="text-sm text-surface-600-300-token">
+              <p class="font-medium text-surface-900">Comparison #{{ comparison.id }}</p>
+              <p class="text-sm text-surface-500">
                 {{ formatRelativeTime(comparison.created_at) }}
               </p>
             </div>
@@ -28,38 +28,38 @@
         </div>
 
         <div v-if="recentComparisons.length === 0" class="text-center py-8">
-          <i class="fas fa-chart-bar text-4xl text-surface-400-500-token mb-2"></i>
-          <p class="text-surface-600-300-token">No comparisons yet</p>
+          <i class="fas fa-chart-bar text-4xl text-surface-400 mb-2"></i>
+          <p class="text-surface-500">No comparisons yet</p>
         </div>
       </div>
 
       <!-- System Stats -->
       <div class="card p-6">
-        <h2 class="h3 font-bold mb-6">System Statistics</h2>
+        <h2 class="text-lg font-bold text-surface-900 mb-6">System Statistics</h2>
         <div class="space-y-6">
           <div class="grid grid-cols-2 gap-4">
-            <div class="text-center p-4 rounded-lg bg-surface-100-800-token">
-              <p class="text-3xl font-bold text-primary-500">{{ entitiesStore.entities.length }}</p>
-              <p class="text-sm text-surface-600-300-token">Total Entities</p>
+            <div class="text-center p-4 rounded-lg bg-surface-100">
+              <p class="text-3xl font-bold text-primary-600">{{ entitiesStore.entities.length }}</p>
+              <p class="text-sm text-surface-500">Total Entities</p>
             </div>
-            <div class="text-center p-4 rounded-lg bg-surface-100-800-token">
-              <p class="text-3xl font-bold text-secondary-500">{{ comparisonsStore.comparisons.length }}</p>
-              <p class="text-sm text-surface-600-300-token">Comparisons</p>
+            <div class="text-center p-4 rounded-lg bg-surface-100">
+              <p class="text-3xl font-bold text-green-600">{{ comparisonsStore.comparisons.length }}</p>
+              <p class="text-sm text-surface-500">Comparisons</p>
             </div>
           </div>
 
           <div class="space-y-3">
             <div class="flex justify-between">
-              <span>Average Rating</span>
-              <span class="font-bold">{{ averageRating }}</span>
+              <span class="text-surface-700">Average Rating</span>
+              <span class="font-bold text-surface-900">{{ averageRating }}</span>
             </div>
             <div class="flex justify-between">
-              <span>Highest Rating</span>
-              <span class="font-bold text-green-500">{{ highestRating }}</span>
+              <span class="text-surface-700">Highest Rating</span>
+              <span class="font-bold text-green-600">{{ highestRating }}</span>
             </div>
             <div class="flex justify-between">
-              <span>Lowest Rating</span>
-              <span class="font-bold text-red-500">{{ lowestRating }}</span>
+              <span class="text-surface-700">Lowest Rating</span>
+              <span class="font-bold text-red-600">{{ lowestRating }}</span>
             </div>
           </div>
         </div>

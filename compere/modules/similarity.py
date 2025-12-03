@@ -1,10 +1,13 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from typing import List
+
 import numpy as np
+from fastapi import APIRouter, Depends, HTTPException
 from sklearn.metrics.pairwise import cosine_similarity
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
 
 from .database import get_db
-from .models import Entity
+from .models import Entity, EntityOut
 
 router = APIRouter()
 
@@ -30,16 +33,10 @@ def get_dissimilar_entities(db: Session, n=2):
     most_dissimilar_pair = np.unravel_index(np.argmin(similarities), similarities.shape)
     return [entities[most_dissimilar_pair[0]], entities[most_dissimilar_pair[1]]]
 
-def get_similar_entities(db: Session, n=2):
-    """Legacy function - now returns dissimilar entities for better comparisons"""
-    return get_dissimilar_entities(db, n)
-
-@router.get("/similar_entities")
-def get_similar_entities_route(db: Session = Depends(get_db)):
-    """Get dissimilar entities for comparison (renamed for backward compatibility)"""
-    return get_similar_entities(db)
-
-@router.get("/dissimilar_entities")
+@router.get("/dissimilar_entities", response_model=List[EntityOut])
 def get_dissimilar_entities_route(db: Session = Depends(get_db)):
     """Get dissimilar entities for comparison"""
-    return get_dissimilar_entities(db)
+    try:
+        return get_dissimilar_entities(db)
+    except SQLAlchemyError as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")

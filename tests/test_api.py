@@ -3,6 +3,7 @@ Integration tests for the FastAPI app.
 """
 import os
 import sys
+
 import pytest
 from fastapi.testclient import TestClient
 

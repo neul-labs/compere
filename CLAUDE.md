@@ -90,7 +90,10 @@ npm run preview
 - `AUTH_ENABLED` - Enable JWT authentication (default: false)
 - `SECRET_KEY` - JWT secret (required if AUTH_ENABLED=true)
 - `RATE_LIMIT_ENABLED` - Enable rate limiting (default: false)
+- `RATE_LIMIT_REQUESTS` - Max requests per window (default: 100)
+- `RATE_LIMIT_WINDOW` - Rate limit window in seconds (default: 60)
 - `LOG_LEVEL` - Logging level (default: INFO)
+- `LOG_REQUESTS` - Enable request logging middleware (default: true)
 - `ENVIRONMENT` - Environment type (development/staging/production)
 
 ### Frontend Configuration
@@ -115,6 +118,34 @@ npm run preview
 - **Dependency Injection**: Database sessions via FastAPI dependencies
 - **Middleware Stack**: CORS → Rate Limiting → Logging → Authentication
 - **Error Handling**: Comprehensive with proper HTTP status codes
+
+### API Endpoints
+**Entities:**
+- `POST /entities/` - Create a new entity
+- `GET /entities/` - List entities with pagination and search
+- `GET /entities/{id}` - Get single entity
+- `PUT /entities/{id}` - Update entity
+- `DELETE /entities/{id}` - Delete entity
+
+**Comparisons:**
+- `POST /comparisons/` - Create comparison and update ratings
+- `GET /comparisons/` - List comparisons with filtering
+- `GET /comparisons/{id}` - Get single comparison
+- `GET /comparisons/next` - Get next pair using similarity algorithm
+
+**Ratings:**
+- `GET /ratings` - Get leaderboard (entities sorted by rating)
+
+**MAB (Multi-Armed Bandit):**
+- `GET /mab/next_comparison` - Get next pair using UCB algorithm
+- `POST /mab/update` - Update MAB state after comparison
+
+**Similarity:**
+- `GET /dissimilar_entities` - Get dissimilar entity pair for comparison
+
+**Authentication (when AUTH_ENABLED=true):**
+- `POST /auth/token` - Login and get access token
+- `GET /auth/users/me` - Get current user info
 
 ### Frontend-Backend Integration
 - **API Client**: `compere-ui/src/services/api.js` - Centralized Axios client

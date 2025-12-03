@@ -1,10 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import SQLAlchemyError
+import os
 from typing import List, Optional
 
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
+
 from .database import get_db
-from .models import Entity, EntityCreate, EntityOut, EntityUpdate
+from .models import Entity, EntityCreate, EntityOut, EntityUpdate, MessageResponse
+
+# Elo configuration
+ELO_INITIAL_RATING = float(os.getenv("ELO_INITIAL_RATING", "1500.0"))
 
 router = APIRouter()
 
@@ -12,7 +17,7 @@ router = APIRouter()
 def create_entity(entity: EntityCreate, db: Session = Depends(get_db)):
     """Create a new entity"""
     try:
-        db_entity = Entity(**entity.dict())
+        db_entity = Entity(**entity.model_dump(), rating=ELO_INITIAL_RATING)
         db.add(db_entity)
         db.commit()
         db.refresh(db_entity)
@@ -63,7 +68,7 @@ def update_entity(entity_id: int, entity_update: EntityUpdate, db: Session = Dep
         if db_entity is None:
             raise HTTPException(status_code=404, detail="Entity not found")
 
-        update_data = entity_update.dict(exclude_unset=True)
+        update_data = entity_update.model_dump(exclude_unset=True)
         for field, value in update_data.items():
             setattr(db_entity, field, value)
 
@@ -74,7 +79,7 @@ def update_entity(entity_id: int, entity_update: EntityUpdate, db: Session = Dep
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
-@router.delete("/entities/{entity_id}")
+@router.delete("/entities/{entity_id}", response_model=MessageResponse)
 def delete_entity(entity_id: int, db: Session = Depends(get_db)):
     """Delete an entity"""
     try:

@@ -1,6 +1,6 @@
 import click
 import uvicorn
-from .main import app
+
 
 @click.command()
 @click.option("--host", default="127.0.0.1", help="Host to bind the server to")

@@ -4,22 +4,24 @@
     <button
       v-if="authStore.isAuthenticated"
       @click="showMenu = !showMenu"
-      class="btn variant-ghost-surface"
-      :class="{ 'variant-filled-primary': showMenu }"
+      :class="[
+        'btn',
+        showMenu ? 'btn-primary' : 'btn-ghost'
+      ]"
     >
       <div class="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
         <span class="text-white text-sm font-bold">
           {{ getUserInitials() }}
         </span>
       </div>
-      <span class="hidden md:inline ml-2">{{ authStore.user?.username }}</span>
-      <i class="fas fa-chevron-down ml-2 transition-transform" :class="{ 'rotate-180': showMenu }"></i>
+      <span class="hidden md:inline ml-2 text-surface-700">{{ authStore.user?.username }}</span>
+      <i class="fas fa-chevron-down ml-2 transition-transform text-surface-500" :class="{ 'rotate-180': showMenu }"></i>
     </button>
 
     <router-link
       v-else
       to="/auth"
-      class="btn variant-filled-primary"
+      class="btn btn-primary"
     >
       <i class="fas fa-sign-in-alt"></i>
       <span class="hidden sm:inline ml-2">Login</span>
@@ -28,11 +30,11 @@
     <!-- Dropdown Menu -->
     <div
       v-if="authStore.isAuthenticated && showMenu"
-      class="absolute right-0 top-full mt-2 w-64 bg-surface-100-800-token rounded-lg shadow-xl border border-surface-300-600-token z-50 animate-slide-up"
+      class="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-xl border border-surface-200 z-50 animate-slide-up"
       @click.stop
     >
       <!-- User Info -->
-      <div class="p-4 border-b border-surface-300-600-token">
+      <div class="p-4 border-b border-surface-200">
         <div class="flex items-center space-x-3">
           <div class="w-12 h-12 bg-primary-500 rounded-full flex items-center justify-center">
             <span class="text-white font-bold text-lg">
@@ -40,11 +42,11 @@
             </span>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="font-semibold truncate">{{ authStore.user?.username }}</p>
-            <p class="text-sm text-surface-600-300-token truncate">
+            <p class="font-semibold text-surface-900 truncate">{{ authStore.user?.username }}</p>
+            <p class="text-sm text-surface-500 truncate">
               {{ authStore.user?.email || 'Compere User' }}
             </p>
-            <p class="text-xs text-surface-500-400-token">
+            <p class="text-xs text-surface-400">
               {{ authStore.user?.full_name || 'Active User' }}
             </p>
           </div>
@@ -55,7 +57,7 @@
       <div class="p-2">
         <button
           @click="viewProfile"
-          class="w-full text-left px-3 py-2 rounded-lg hover:bg-surface-200-700-token transition-colors flex items-center space-x-3"
+          class="w-full text-left px-3 py-2 rounded-lg hover:bg-surface-100 transition-colors flex items-center space-x-3 text-surface-700"
         >
           <i class="fas fa-user w-5"></i>
           <span>Profile</span>
@@ -63,27 +65,27 @@
 
         <button
           @click="viewSettings"
-          class="w-full text-left px-3 py-2 rounded-lg hover:bg-surface-200-700-token transition-colors flex items-center space-x-3"
+          class="w-full text-left px-3 py-2 rounded-lg hover:bg-surface-100 transition-colors flex items-center space-x-3 text-surface-700"
         >
           <i class="fas fa-cog w-5"></i>
           <span>Settings</span>
         </button>
 
-        <hr class="my-2 opacity-20">
+        <hr class="my-2 border-surface-200">
 
         <button
           @click="toggleTheme"
-          class="w-full text-left px-3 py-2 rounded-lg hover:bg-surface-200-700-token transition-colors flex items-center space-x-3"
+          class="w-full text-left px-3 py-2 rounded-lg hover:bg-surface-100 transition-colors flex items-center space-x-3 text-surface-700"
         >
           <i :class="['fas', isDark ? 'fa-sun' : 'fa-moon', 'w-5']"></i>
           <span>{{ isDark ? 'Light Mode' : 'Dark Mode' }}</span>
         </button>
 
-        <hr class="my-2 opacity-20">
+        <hr class="my-2 border-surface-200">
 
         <button
           @click="logout"
-          class="w-full text-left px-3 py-2 rounded-lg hover:bg-error-100 hover:text-error-700 transition-colors flex items-center space-x-3 text-error-500"
+          class="w-full text-left px-3 py-2 rounded-lg hover:bg-red-50 transition-colors flex items-center space-x-3 text-red-600"
         >
           <i class="fas fa-sign-out-alt w-5"></i>
           <span>Logout</span>
@@ -101,7 +103,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth.js'
 
@@ -110,7 +112,7 @@ const authStore = useAuthStore()
 
 // State
 const showMenu = ref(false)
-const isDark = ref(true)
+const isDark = ref(false)
 
 // Computed
 const getUserInitials = () => {

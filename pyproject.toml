@@ -27,8 +27,18 @@ dev = [
     "ruff>=0.8.0",
 ]
 
+
 [project.scripts]
 compere = "compere.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=6.2.4",
+    "pytest-cov>=2.12.1",
+    "httpx>=0.18.0",
+    "ruff>=0.8.0",
+    "twine>=5.0.0",
+]
 
 [build-system]
 requires = ["hatchling"]
