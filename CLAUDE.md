@@ -35,22 +35,28 @@ Compere is a dual-purpose comparative rating system that leverages Multi-Armed B
 
 ## Common Commands
 
-### Backend Development (Poetry)
+### Backend Development (uv)
 ```bash
 # Start development server on port 8090
-poetry run compere --reload
+uv run compere --reload
 
 # Start with custom port
-poetry run compere --host 127.0.0.1 --port 8090 --reload
+uv run compere --host 127.0.0.1 --port 8090 --reload
 
 # Install dependencies
-poetry install
+uv sync
 
-# Run tests (when available)
-poetry run pytest
+# Install with dev dependencies
+uv sync --all-extras
+
+# Run tests
+uv run pytest
+
+# Run linting
+uvx ruff check .
 
 # Access CLI help
-poetry run compere --help
+uv run compere --help
 ```
 
 ### Frontend Development
@@ -142,4 +148,4 @@ npm run preview
 - **"no such table" errors**: Models not imported in main.py, or database needs recreation
 - **Port conflicts**: Use `lsof -ti:PORT | xargs kill -9` to clear ports
 - **Frontend API connection**: Ensure `.env` file exists with correct `VITE_API_BASE_URL`
-- **Missing dependencies**: Run `poetry install` for backend, `npm install` for frontend
+- **Missing dependencies**: Run `uv sync` for backend, `npm install` for frontend

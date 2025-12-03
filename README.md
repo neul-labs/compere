@@ -1,5 +1,10 @@
 # Compere
 
+[![CI](https://github.com/terraprompt/compere/actions/workflows/ci.yml/badge.svg)](https://github.com/terraprompt/compere/actions/workflows/ci.yml)
+[![Frontend CI](https://github.com/terraprompt/compere/actions/workflows/frontend.yml/badge.svg)](https://github.com/terraprompt/compere/actions/workflows/frontend.yml)
+[![PyPI version](https://badge.fury.io/py/compere.svg)](https://badge.fury.io/py/compere)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Compere is an advanced comparative rating system that leverages Multi-Armed Bandit (MAB) algorithms and Elo ratings to provide fair and efficient entity comparisons. It can be used both as a standalone web service and as a library in your Python projects.
 
 Whether you're building a recommendation system, a product comparison platform, or any application that requires comparative rankings, Compere provides the tools to make intelligent pairwise comparisons and maintain accurate ratings.
@@ -276,15 +281,14 @@ When using Compere as a library, you can make comparisons directly through funct
    cd compere
    ```
 
-2. Set up a virtual environment:
+2. Install uv (if not already installed):
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+   curl -LsSf https://astral.sh/uv/install.sh | sh
    ```
 
 3. Install dependencies:
    ```bash
-   pip install -e .
+   uv sync --all-extras
    ```
 
 4. Set up environment variables (optional):
@@ -295,7 +299,7 @@ When using Compere as a library, you can make comparisons directly through funct
 
 5. Run the application as a standalone service:
    ```bash
-   compere --reload
+   uv run compere --reload
    ```
 
 The API will be available at `http://localhost:8000`.
@@ -320,13 +324,13 @@ To run the tests, use pytest:
 
 ```bash
 # Run all tests
-pytest
+uv run pytest
 
 # Run a specific test file
-pytest tests/test_compere.py
+uv run pytest tests/test_compere.py
 
 # Run tests with coverage
-pytest --cov=compere
+uv run pytest --cov=compere
 ```
 
 ## Contributing
