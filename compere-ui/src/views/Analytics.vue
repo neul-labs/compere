@@ -1,14 +1,20 @@
 <template>
   <div class="space-y-8">
     <div class="text-center">
-      <h1 class="text-2xl font-bold text-surface-900 mb-4">Analytics & History</h1>
-      <p class="text-surface-600 text-lg">Comparison history and system insights</p>
+      <h1 class="text-2xl font-bold text-surface-900 mb-4">
+        Analytics & History
+      </h1>
+      <p class="text-surface-600 text-lg">
+        Comparison history and system insights
+      </p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
       <!-- Recent Comparisons -->
       <div class="card p-6">
-        <h2 class="text-lg font-bold text-surface-900 mb-6">Recent Comparisons</h2>
+        <h2 class="text-lg font-bold text-surface-900 mb-6">
+          Recent Comparisons
+        </h2>
         <div class="space-y-4">
           <div
             v-for="comparison in recentComparisons.slice(0, 10)"
@@ -19,7 +25,9 @@
               {{ comparison.id }}
             </div>
             <div class="flex-1">
-              <p class="font-medium text-surface-900">Comparison #{{ comparison.id }}</p>
+              <p class="font-medium text-surface-900">
+                Comparison #{{ comparison.id }}
+              </p>
               <p class="text-sm text-surface-500">
                 {{ formatRelativeTime(comparison.created_at) }}
               </p>
@@ -27,24 +35,39 @@
           </div>
         </div>
 
-        <div v-if="recentComparisons.length === 0" class="text-center py-8">
-          <i class="fas fa-chart-bar text-4xl text-surface-400 mb-2"></i>
-          <p class="text-surface-500">No comparisons yet</p>
+        <div
+          v-if="recentComparisons.length === 0"
+          class="text-center py-8"
+        >
+          <i class="fas fa-chart-bar text-4xl text-surface-400 mb-2" />
+          <p class="text-surface-500">
+            No comparisons yet
+          </p>
         </div>
       </div>
 
       <!-- System Stats -->
       <div class="card p-6">
-        <h2 class="text-lg font-bold text-surface-900 mb-6">System Statistics</h2>
+        <h2 class="text-lg font-bold text-surface-900 mb-6">
+          System Statistics
+        </h2>
         <div class="space-y-6">
           <div class="grid grid-cols-2 gap-4">
             <div class="text-center p-4 rounded-lg bg-surface-100">
-              <p class="text-3xl font-bold text-primary-600">{{ entitiesStore.entities.length }}</p>
-              <p class="text-sm text-surface-500">Total Entities</p>
+              <p class="text-3xl font-bold text-primary-600">
+                {{ entitiesStore.entities.length }}
+              </p>
+              <p class="text-sm text-surface-500">
+                Total Entities
+              </p>
             </div>
             <div class="text-center p-4 rounded-lg bg-surface-100">
-              <p class="text-3xl font-bold text-green-600">{{ comparisonsStore.comparisons.length }}</p>
-              <p class="text-sm text-surface-500">Comparisons</p>
+              <p class="text-3xl font-bold text-green-600">
+                {{ comparisonsStore.comparisons.length }}
+              </p>
+              <p class="text-sm text-surface-500">
+                Comparisons
+              </p>
             </div>
           </div>
 

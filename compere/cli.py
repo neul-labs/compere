@@ -10,5 +10,6 @@ def main(host, port, reload):
     """Compere CLI to run the web service."""
     uvicorn.run("compere.main:app", host=host, port=port, reload=reload)
 
+
 if __name__ == "__main__":
     main()

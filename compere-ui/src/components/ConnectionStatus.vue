@@ -6,7 +6,7 @@
         'w-3 h-3 rounded-full transition-all duration-300',
         isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'
       ]"
-    ></div>
+    />
 
     <!-- Status Text -->
     <span
@@ -21,12 +21,12 @@
     <!-- Retry Button (when disconnected) -->
     <button
       v-if="!isConnected"
-      @click="checkConnection"
       :disabled="checking"
       class="btn btn-sm btn-ghost"
       title="Retry Connection"
+      @click="checkConnection"
     >
-      <i :class="['fas', checking ? 'fa-spinner fa-spin' : 'fa-sync-alt']"></i>
+      <i :class="['fas', checking ? 'fa-spinner fa-spin' : 'fa-sync-alt']" />
     </button>
   </div>
 </template>

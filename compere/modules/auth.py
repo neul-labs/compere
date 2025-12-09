@@ -1,9 +1,9 @@
 """
 Basic authentication module
 """
+
 import os
-from datetime import datetime, timedelta, timezone
-from typing import Optional
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -24,21 +24,26 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # Token security
 security = HTTPBearer()
 
+
 class Token(BaseModel):
     access_token: str
     token_type: str
 
+
 class TokenData(BaseModel):
-    username: Optional[str] = None
+    username: str | None = None
+
 
 class User(BaseModel):
     username: str
-    email: Optional[str] = None
-    full_name: Optional[str] = None
-    disabled: Optional[bool] = None
+    email: str | None = None
+    full_name: str | None = None
+    disabled: bool | None = None
+
 
 class UserInDB(User):
     hashed_password: str
+
 
 # Demo users (in production, this would be in a database)
 fake_users_db = {
@@ -55,22 +60,26 @@ fake_users_db = {
         "email": "demo@example.com",
         "hashed_password": pwd_context.hash("demo123"),
         "disabled": False,
-    }
+    },
 }
+
 
 def verify_password(plain_password, hashed_password):
     """Verify a plaintext password against a hash"""
     return pwd_context.verify(plain_password, hashed_password)
 
+
 def get_password_hash(password):
     """Hash a password"""
     return pwd_context.hash(password)
+
 
 def get_user(db, username: str):
     """Get user from database"""
     if username in db:
         user_dict = db[username]
         return UserInDB(**user_dict)
+
 
 def authenticate_user(fake_db, username: str, password: str):
     """Authenticate a user"""
@@ -81,16 +90,18 @@ def authenticate_user(fake_db, username: str, password: str):
         return False
     return user
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
     """Create JWT access token"""
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
+        expire = datetime.now(UTC) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+        expire = datetime.now(UTC) + timedelta(minutes=15)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """Get current user from JWT token"""
@@ -106,19 +117,21 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         if username is None:
             raise credentials_exception
         token_data = TokenData(username=username)
-    except JWTError:
-        raise credentials_exception
+    except JWTError as e:
+        raise credentials_exception from e
 
     user = get_user(fake_users_db, username=token_data.username)
     if user is None:
         raise credentials_exception
     return user
 
+
 def get_current_active_user(current_user: User = Depends(get_current_user)):
     """Get current active user"""
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
+
 
 # Optional authentication dependency
 def optional_auth():
@@ -127,7 +140,7 @@ def optional_auth():
     if not auth_enabled:
         return None
 
-    def _optional_auth(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)):
+    def _optional_auth(credentials: HTTPAuthorizationCredentials | None = Depends(security)):
         if credentials is None:
             return None
         try:
@@ -137,6 +150,7 @@ def optional_auth():
 
     return Depends(_optional_auth)
 
+
 # Required authentication dependency
 def required_auth():
     """Required authentication"""
@@ -145,6 +159,7 @@ def required_auth():
         return lambda: None
 
     return Depends(get_current_active_user)
+
 
 @router.post("/token", response_model=Token)
 async def login_for_access_token(username: str, password: str):
@@ -157,10 +172,9 @@ async def login_for_access_token(username: str, password: str):
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
-    )
+    access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
     return {"access_token": access_token, "token_type": "bearer"}
+
 
 @router.get("/users/me", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):

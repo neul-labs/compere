@@ -1,6 +1,7 @@
 """
 Integration tests for the FastAPI app.
 """
+
 import os
 import sys
 
@@ -8,11 +9,12 @@ import pytest
 from fastapi.testclient import TestClient
 
 # Add the compere package to the path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from compere.main import app
 
 client = TestClient(app)
+
 
 class TestAPIEndpoints:
     """Test API endpoint availability and basic functionality"""
@@ -27,7 +29,7 @@ class TestAPIEndpoints:
         entity_data = {
             "name": "Integration Test Restaurant",
             "description": "Created for integration testing",
-            "image_urls": ["http://example.com/integration.jpg"]
+            "image_urls": ["http://example.com/integration.jpg"],
         }
 
         response = client.post("/entities/", json=entity_data)
@@ -53,7 +55,7 @@ class TestAPIEndpoints:
         entity_data = {
             "name": "Searchable Restaurant",
             "description": "This restaurant should be findable",
-            "image_urls": ["http://example.com/search.jpg"]
+            "image_urls": ["http://example.com/search.jpg"],
         }
         client.post("/entities/", json=entity_data)
 
@@ -71,7 +73,7 @@ class TestAPIEndpoints:
         entity_data = {
             "name": "Specific Test Restaurant",
             "description": "For specific ID testing",
-            "image_urls": ["http://example.com/specific.jpg"]
+            "image_urls": ["http://example.com/specific.jpg"],
         }
         create_response = client.post("/entities/", json=entity_data)
         entity_id = create_response.json()["id"]
@@ -95,12 +97,12 @@ class TestAPIEndpoints:
         entity1_data = {
             "name": "Comparison Test Restaurant 1",
             "description": "First restaurant for comparison",
-            "image_urls": ["http://example.com/comp1.jpg"]
+            "image_urls": ["http://example.com/comp1.jpg"],
         }
         entity2_data = {
             "name": "Comparison Test Restaurant 2",
             "description": "Second restaurant for comparison",
-            "image_urls": ["http://example.com/comp2.jpg"]
+            "image_urls": ["http://example.com/comp2.jpg"],
         }
 
         entity1_response = client.post("/entities/", json=entity1_data)
@@ -110,11 +112,7 @@ class TestAPIEndpoints:
         entity2_id = entity2_response.json()["id"]
 
         # Create a comparison
-        comparison_data = {
-            "entity1_id": entity1_id,
-            "entity2_id": entity2_id,
-            "selected_entity_id": entity1_id
-        }
+        comparison_data = {"entity1_id": entity1_id, "entity2_id": entity2_id, "selected_entity_id": entity1_id}
 
         response = client.post("/comparisons/", json=comparison_data)
         assert response.status_code == 200
@@ -165,11 +163,7 @@ class TestAPIEndpoints:
     def test_invalid_entity_creation(self):
         """Test invalid entity creation"""
         # Test with empty name
-        invalid_entity = {
-            "name": "",
-            "description": "Invalid entity",
-            "image_urls": ["http://example.com/invalid.jpg"]
-        }
+        invalid_entity = {"name": "", "description": "Invalid entity", "image_urls": ["http://example.com/invalid.jpg"]}
 
         response = client.post("/entities/", json=invalid_entity)
         assert response.status_code == 422  # Validation error
@@ -182,6 +176,7 @@ class TestAPIEndpoints:
         data = response.json()
         assert isinstance(data, list)
 
+
 class TestAuthentication:
     """Test authentication endpoints if enabled"""
 
@@ -191,6 +186,7 @@ class TestAuthentication:
         response = client.post("/auth/token", data={"username": "test", "password": "test"})
         # Will likely return 401 or 422, but endpoint should exist
         assert response.status_code in [401, 422]
+
 
 def test_api_endpoints():
     """Legacy test function for backward compatibility"""
@@ -212,6 +208,7 @@ def test_api_endpoints():
     print("  ✓ POST /auth/token        : Authentication endpoint")
 
     print("\nAll endpoints are properly defined and tested.")
+
 
 if __name__ == "__main__":
     # Run pytest if available, otherwise run legacy test

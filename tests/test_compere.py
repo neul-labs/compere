@@ -11,7 +11,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 # Add the compere package to the path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from compere.main import app
 from compere.modules.database import Base
@@ -30,6 +30,7 @@ SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+
 @pytest.fixture
 def db_session():
     """Create a fresh database session for each test"""
@@ -41,23 +42,21 @@ def db_session():
         db.close()
         Base.metadata.drop_all(bind=engine)
 
+
 @pytest.fixture
 def test_client():
     """Create a test client"""
     return TestClient(app)
 
+
 @pytest.fixture
 def sample_entities(db_session):
     """Create sample entities for testing"""
     entity1 = EntityCreate(
-        name="Restaurant A",
-        description="A fine dining restaurant",
-        image_urls=["http://example.com/a.jpg"]
+        name="Restaurant A", description="A fine dining restaurant", image_urls=["http://example.com/a.jpg"]
     )
     entity2 = EntityCreate(
-        name="Restaurant B",
-        description="A casual dining spot",
-        image_urls=["http://example.com/b.jpg"]
+        name="Restaurant B", description="A casual dining spot", image_urls=["http://example.com/b.jpg"]
     )
 
     db_entity1 = Entity(**entity1.dict())
@@ -71,15 +70,14 @@ def sample_entities(db_session):
 
     return db_entity1, db_entity2
 
+
 class TestEntityOperations:
     """Test entity CRUD operations"""
 
     def test_create_entity(self, db_session):
         """Test entity creation"""
         entity_data = EntityCreate(
-            name="Test Restaurant",
-            description="A test restaurant",
-            image_urls=["http://example.com/test.jpg"]
+            name="Test Restaurant", description="A test restaurant", image_urls=["http://example.com/test.jpg"]
         )
 
         entity = Entity(**entity_data.dict())
@@ -106,6 +104,7 @@ class TestEntityOperations:
         with pytest.raises(ValueError, match="Image URLs must be non-empty strings"):
             EntityCreate(name="Test", description="Test", image_urls=[""])
 
+
 class TestRatingSystem:
     """Test Elo rating system"""
 
@@ -130,6 +129,7 @@ class TestRatingSystem:
         assert entity2.rating < initial_rating2
         assert abs((entity1.rating + entity2.rating) - (initial_rating1 + initial_rating2)) < 0.001
 
+
 class TestComparisons:
     """Test comparison operations"""
 
@@ -137,11 +137,7 @@ class TestComparisons:
         """Test comparison creation"""
         entity1, entity2 = sample_entities
 
-        comparison_data = ComparisonCreate(
-            entity1_id=entity1.id,
-            entity2_id=entity2.id,
-            selected_entity_id=entity1.id
-        )
+        comparison_data = ComparisonCreate(entity1_id=entity1.id, entity2_id=entity2.id, selected_entity_id=entity1.id)
 
         comparison = Comparison(**comparison_data.dict())
         db_session.add(comparison)
@@ -152,6 +148,7 @@ class TestComparisons:
         assert comparison.entity1_id == entity1.id
         assert comparison.entity2_id == entity2.id
         assert comparison.selected_entity_id == entity1.id
+
 
 class TestMAB:
     """Test Multi-Armed Bandit implementation"""
@@ -189,6 +186,7 @@ class TestMAB:
         assert state.value == 1.0
         assert state.total_count == 1
 
+
 class TestAPI:
     """Test API endpoints"""
 
@@ -197,7 +195,7 @@ class TestAPI:
         entity_data = {
             "name": "API Test Restaurant",
             "description": "Created via API",
-            "image_urls": ["http://example.com/api.jpg"]
+            "image_urls": ["http://example.com/api.jpg"],
         }
 
         response = test_client.post("/entities/", json=entity_data)
@@ -213,7 +211,7 @@ class TestAPI:
         entity_data = {
             "name": "List Test Restaurant",
             "description": "For listing test",
-            "image_urls": ["http://example.com/list.jpg"]
+            "image_urls": ["http://example.com/list.jpg"],
         }
         test_client.post("/entities/", json=entity_data)
 
@@ -233,9 +231,11 @@ class TestAPI:
         data = response.json()
         assert isinstance(data, list)
 
+
 def run_tests():
     """Run all tests"""
     pytest.main([__file__, "-v"])
+
 
 if __name__ == "__main__":
     run_tests()

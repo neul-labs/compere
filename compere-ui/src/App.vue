@@ -1,5 +1,8 @@
 <template>
-  <div id="app" class="min-h-screen bg-surface-100">
+  <div
+    id="app"
+    class="min-h-screen bg-surface-100"
+  >
     <!-- App Layout -->
     <div class="flex min-h-screen">
       <!-- Navigation Sidebar (desktop) -->
@@ -13,12 +16,14 @@
         <header class="bg-white border-b border-surface-200 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
           <div class="flex items-center space-x-4">
             <button
-              @click="drawerOpen = !drawerOpen"
               class="btn btn-ghost btn-sm lg:hidden"
+              @click="drawerOpen = !drawerOpen"
             >
-              <i class="fas fa-bars text-lg"></i>
+              <i class="fas fa-bars text-lg" />
             </button>
-            <h1 class="text-xl font-semibold text-surface-900">Compere</h1>
+            <h1 class="text-xl font-semibold text-surface-900">
+              Compere
+            </h1>
           </div>
           <div class="flex items-center space-x-4">
             <!-- Connection Status -->
@@ -28,7 +33,7 @@
                   'w-2 h-2 rounded-full',
                   isConnected ? 'bg-green-500' : 'bg-red-500'
                 ]"
-              ></div>
+              />
               <span class="text-sm text-surface-600">
                 {{ isConnected ? 'Connected' : 'Disconnected' }}
               </span>
@@ -45,14 +50,21 @@
           >
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-3">
-                <i class="fas fa-exclamation-circle"></i>
+                <i class="fas fa-exclamation-circle" />
                 <div>
-                  <h3 class="font-semibold">Connection Error</h3>
-                  <p class="text-sm">Unable to connect to the API server. Please ensure the server is running.</p>
+                  <h3 class="font-semibold">
+                    Connection Error
+                  </h3>
+                  <p class="text-sm">
+                    Unable to connect to the API server. Please ensure the server is running.
+                  </p>
                 </div>
               </div>
-              <button @click="testConnection" class="btn btn-sm btn-danger">
-                <i class="fas fa-sync-alt mr-2"></i>
+              <button
+                class="btn btn-sm btn-danger"
+                @click="testConnection"
+              >
+                <i class="fas fa-sync-alt mr-2" />
                 Retry
               </button>
             </div>
@@ -65,12 +77,15 @@
     </div>
 
     <!-- Mobile Drawer Overlay -->
-    <div v-if="drawerOpen" class="fixed inset-0 z-40 lg:hidden">
+    <div
+      v-if="drawerOpen"
+      class="fixed inset-0 z-40 lg:hidden"
+    >
       <!-- Backdrop -->
       <div
         class="fixed inset-0 bg-black/50 transition-opacity"
         @click="drawerOpen = false"
-      ></div>
+      />
 
       <!-- Drawer -->
       <div class="fixed inset-y-0 left-0 z-50">
@@ -90,17 +105,24 @@
       >
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-3">
-            <i :class="getNotificationIcon(notification.type)"></i>
+            <i :class="getNotificationIcon(notification.type)" />
             <div>
-              <h4 class="font-semibold">{{ notification.title }}</h4>
-              <p v-if="notification.message" class="text-sm opacity-90">{{ notification.message }}</p>
+              <h4 class="font-semibold">
+                {{ notification.title }}
+              </h4>
+              <p
+                v-if="notification.message"
+                class="text-sm opacity-90"
+              >
+                {{ notification.message }}
+              </p>
             </div>
           </div>
           <button
-            @click="dismissNotification(notification.id)"
             class="ml-4 opacity-70 hover:opacity-100"
+            @click="dismissNotification(notification.id)"
           >
-            <i class="fas fa-times"></i>
+            <i class="fas fa-times" />
           </button>
         </div>
       </div>

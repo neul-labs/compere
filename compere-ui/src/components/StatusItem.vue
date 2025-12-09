@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center justify-between p-3 rounded-lg bg-surface-100">
     <div class="flex items-center space-x-3">
-      <i :class="[icon, 'w-5 text-surface-500']"></i>
+      <i :class="[icon, 'w-5 text-surface-500']" />
       <span class="font-medium text-surface-700">{{ label }}</span>
     </div>
 
@@ -11,7 +11,7 @@
           'w-3 h-3 rounded-full',
           getStatusColor(status)
         ]"
-      ></div>
+      />
       <span
         :class="[
           'text-sm font-medium capitalize',

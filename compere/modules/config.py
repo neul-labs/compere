@@ -1,13 +1,14 @@
 """
 Configuration and environment validation module
 """
+
 import logging
 import os
 import sys
-from typing import Any, Dict
+from typing import Any
 
 
-def validate_environment() -> Dict[str, Any]:
+def validate_environment() -> dict[str, Any]:
     """Validate environment variables and dependencies"""
     config = {}
     errors = []
@@ -53,6 +54,7 @@ def validate_environment() -> Dict[str, Any]:
     # Check required dependencies
     try:
         from importlib.util import find_spec
+
         required_deps = ["fastapi", "sqlalchemy", "numpy", "sklearn"]
         missing = [dep for dep in required_deps if find_spec(dep) is None]
         if missing:
@@ -101,7 +103,8 @@ def validate_environment() -> Dict[str, Any]:
 
     return config
 
-def setup_logging(config: Dict[str, Any]) -> None:
+
+def setup_logging(config: dict[str, Any]) -> None:
     """Setup logging configuration"""
     log_level = getattr(logging, config.get("log_level", "INFO"))
 
@@ -110,7 +113,7 @@ def setup_logging(config: Dict[str, Any]) -> None:
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         handlers=[
             logging.StreamHandler(),
-        ]
+        ],
     )
 
     # Add file handler for production
@@ -121,7 +124,8 @@ def setup_logging(config: Dict[str, Any]) -> None:
         file_handler.setFormatter(formatter)
         logging.getLogger().addHandler(file_handler)
 
-def get_config() -> Dict[str, Any]:
+
+def get_config() -> dict[str, Any]:
     """Get validated configuration"""
     config = validate_environment()
 

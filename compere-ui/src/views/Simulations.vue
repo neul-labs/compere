@@ -2,7 +2,9 @@
   <div class="space-y-8">
     <!-- Header -->
     <div class="text-center">
-      <h1 class="text-2xl font-bold text-surface-900 mb-2">Simulation Scenarios</h1>
+      <h1 class="text-2xl font-bold text-surface-900 mb-2">
+        Simulation Scenarios
+      </h1>
       <p class="text-surface-500 max-w-2xl mx-auto">
         Load pre-built scenarios to explore the Compere rating system.
         Watch the MAB algorithm learn from comparisons.
@@ -19,7 +21,7 @@
                 'w-3 h-3 rounded-full',
                 isSimulationRunning ? 'bg-green-500 animate-pulse' : 'bg-surface-300'
               ]"
-            ></div>
+            />
             <span class="font-medium text-surface-700">
               {{ isSimulationRunning ? 'Simulation Running...' : 'Ready to Simulate' }}
             </span>
@@ -27,27 +29,30 @@
 
           <div class="flex items-center space-x-3">
             <button
-              @click="clearAll"
               :disabled="isSimulationRunning || entitiesStore.entities.length === 0"
               class="btn btn-sm btn-danger"
+              @click="clearAll"
             >
-              <i class="fas fa-trash mr-2"></i>
+              <i class="fas fa-trash mr-2" />
               Clear All
             </button>
 
             <button
               v-if="isSimulationRunning"
-              @click="stopSimulation"
               class="btn btn-danger"
+              @click="stopSimulation"
             >
-              <i class="fas fa-stop mr-2"></i>
+              <i class="fas fa-stop mr-2" />
               Stop
             </button>
           </div>
         </div>
 
         <!-- Progress Bar -->
-        <div v-if="simulationProgress.total > 0" class="mt-4">
+        <div
+          v-if="simulationProgress.total > 0"
+          class="mt-4"
+        >
           <div class="flex justify-between text-sm text-surface-500 mb-2">
             <span>Progress: {{ simulationProgress.completed }}/{{ simulationProgress.total }}</span>
             <span>{{ Math.round((simulationProgress.completed / simulationProgress.total) * 100) }}%</span>
@@ -56,7 +61,7 @@
             <div
               class="bg-primary-500 h-2 rounded-full transition-all duration-300"
               :style="{ width: `${(simulationProgress.completed / simulationProgress.total) * 100}%` }"
-            ></div>
+            />
           </div>
         </div>
       </div>
@@ -71,30 +76,44 @@
       >
         <!-- Scenario Header -->
         <div class="flex items-center space-x-4 mb-4">
-          <div class="text-4xl">{{ scenario.icon }}</div>
+          <div class="text-4xl">
+            {{ scenario.icon }}
+          </div>
           <div class="flex-1">
-            <h2 class="text-lg font-bold text-surface-900">{{ scenario.name }}</h2>
-            <p class="text-sm text-surface-500">{{ scenario.description }}</p>
+            <h2 class="text-lg font-bold text-surface-900">
+              {{ scenario.name }}
+            </h2>
+            <p class="text-sm text-surface-500">
+              {{ scenario.description }}
+            </p>
           </div>
         </div>
 
         <!-- Scenario Stats -->
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div class="text-center p-3 rounded-lg bg-surface-50">
-            <p class="text-2xl font-bold text-primary-600">{{ scenario.entities.length }}</p>
-            <p class="text-xs text-surface-500">Entities</p>
+            <p class="text-2xl font-bold text-primary-600">
+              {{ scenario.entities.length }}
+            </p>
+            <p class="text-xs text-surface-500">
+              Entities
+            </p>
           </div>
           <div class="text-center p-3 rounded-lg bg-surface-50">
             <p class="text-2xl font-bold text-green-600">
               {{ getScenarioCategories(scenario).length }}
             </p>
-            <p class="text-xs text-surface-500">Categories</p>
+            <p class="text-xs text-surface-500">
+              Categories
+            </p>
           </div>
         </div>
 
         <!-- Entity Preview -->
         <div class="mb-4">
-          <h4 class="text-sm font-medium text-surface-700 mb-2">Sample Entities:</h4>
+          <h4 class="text-sm font-medium text-surface-700 mb-2">
+            Sample Entities:
+          </h4>
           <div class="space-y-2">
             <div
               v-for="entity in scenario.entities.slice(0, 3)"
@@ -108,14 +127,22 @@
                 class="w-8 h-8 rounded object-cover"
                 @error="$event.target.style.display = 'none'"
               >
-              <div v-else class="w-8 h-8 bg-surface-200 rounded flex items-center justify-center text-xs font-medium text-surface-500">
+              <div
+                v-else
+                class="w-8 h-8 bg-surface-200 rounded flex items-center justify-center text-xs font-medium text-surface-500"
+              >
                 {{ entity.name.charAt(0) }}
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-surface-900 truncate">{{ entity.name }}</p>
+                <p class="text-sm font-medium text-surface-900 truncate">
+                  {{ entity.name }}
+                </p>
               </div>
             </div>
-            <p v-if="scenario.entities.length > 3" class="text-xs text-surface-400 text-center">
+            <p
+              v-if="scenario.entities.length > 3"
+              class="text-xs text-surface-400 text-center"
+            >
               +{{ scenario.entities.length - 3 }} more entities
             </p>
           </div>
@@ -124,39 +151,42 @@
         <!-- Action Buttons -->
         <div class="space-y-3">
           <button
-            @click="loadScenario(key, scenario)"
             :disabled="isSimulationRunning"
             class="w-full btn btn-primary"
+            @click="loadScenario(key, scenario)"
           >
-            <i class="fas fa-download mr-2"></i>
+            <i class="fas fa-download mr-2" />
             Load Scenario
           </button>
 
           <div class="grid grid-cols-2 gap-3">
             <button
-              @click="runQuickSimulation(key, scenario, 10)"
               :disabled="isSimulationRunning"
               class="btn btn-secondary btn-sm"
+              @click="runQuickSimulation(key, scenario, 10)"
             >
-              <i class="fas fa-play mr-1"></i>
+              <i class="fas fa-play mr-1" />
               Quick (10)
             </button>
 
             <button
-              @click="runFullSimulation(key, scenario, 50)"
               :disabled="isSimulationRunning"
               class="btn btn-secondary btn-sm"
+              @click="runFullSimulation(key, scenario, 50)"
             >
-              <i class="fas fa-fast-forward mr-1"></i>
+              <i class="fas fa-fast-forward mr-1" />
               Full (50)
             </button>
           </div>
         </div>
 
         <!-- Running Indicator -->
-        <div v-if="runningScenario === key" class="mt-4 p-3 rounded-lg bg-primary-50 border border-primary-200">
+        <div
+          v-if="runningScenario === key"
+          class="mt-4 p-3 rounded-lg bg-primary-50 border border-primary-200"
+        >
           <div class="flex items-center space-x-2">
-            <div class="w-2 h-2 bg-primary-500 rounded-full animate-pulse"></div>
+            <div class="w-2 h-2 bg-primary-500 rounded-full animate-pulse" />
             <span class="text-sm font-medium text-primary-700">
               Running {{ scenario.name }}...
             </span>
@@ -166,15 +196,23 @@
     </div>
 
     <!-- Current Results -->
-    <div v-if="entitiesStore.entities.length > 0" class="max-w-5xl mx-auto">
+    <div
+      v-if="entitiesStore.entities.length > 0"
+      class="max-w-5xl mx-auto"
+    >
       <div class="card p-6">
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-lg font-bold text-surface-900">Current Results</h2>
+          <h2 class="text-lg font-bold text-surface-900">
+            Current Results
+          </h2>
           <div class="flex items-center space-x-4 text-sm text-surface-500">
             <span>{{ entitiesStore.entities.length }} entities</span>
             <span>{{ comparisonsStore.comparisons.length }} comparisons</span>
-            <router-link to="/leaderboard" class="text-primary-600 hover:text-primary-700">
-              View Leaderboard <i class="fas fa-arrow-right ml-1"></i>
+            <router-link
+              to="/leaderboard"
+              class="text-primary-600 hover:text-primary-700"
+            >
+              View Leaderboard <i class="fas fa-arrow-right ml-1" />
             </router-link>
           </div>
         </div>
@@ -194,8 +232,11 @@
                   :alt="entity.name"
                   class="w-full h-full object-cover"
                 >
-                <div v-else class="w-full h-full flex items-center justify-center">
-                  <i class="fas fa-image text-surface-300"></i>
+                <div
+                  v-else
+                  class="w-full h-full flex items-center justify-center"
+                >
+                  <i class="fas fa-image text-surface-300" />
                 </div>
               </div>
               <div
@@ -207,8 +248,12 @@
                 {{ index + 1 }}
               </div>
             </div>
-            <h4 class="text-sm font-medium text-surface-900 truncate">{{ entity.name }}</h4>
-            <p class="text-xs text-primary-600 font-semibold">{{ formatRating(entity.rating) }}</p>
+            <h4 class="text-sm font-medium text-surface-900 truncate">
+              {{ entity.name }}
+            </h4>
+            <p class="text-xs text-primary-600 font-semibold">
+              {{ formatRating(entity.rating) }}
+            </p>
           </div>
         </div>
       </div>

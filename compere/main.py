@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="Compere",
     description="An advanced comparative rating system that leverages Multi-Armed Bandit (MAB) algorithms and Elo ratings to provide fair and efficient entity comparisons.",
-    version="0.1.0"
+    version="0.1.0",
 )
 
 # Add middleware
@@ -48,17 +48,14 @@ if rate_limit_middleware.enabled:
         type(rate_limit_middleware),
         calls=rate_limit_middleware.calls,
         period=rate_limit_middleware.period,
-        enabled=rate_limit_middleware.enabled
+        enabled=rate_limit_middleware.enabled,
     )
     logger.info(f"Rate limiting enabled: {rate_limit_middleware.calls} requests per {rate_limit_middleware.period}s")
 
 # Add logging middleware
 logging_middleware = create_logging_middleware()
 if logging_middleware.enabled:
-    app.add_middleware(
-        type(logging_middleware),
-        enabled=logging_middleware.enabled
-    )
+    app.add_middleware(type(logging_middleware), enabled=logging_middleware.enabled)
     logger.info("Request logging enabled")
 
 # Create database tables
@@ -71,6 +68,7 @@ app.include_router(ComparisonRouter)
 app.include_router(RatingRouter)
 app.include_router(SimilarityRouter)
 app.include_router(MABRouter)
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -87,6 +85,7 @@ async def startup_event():
     except Exception as e:
         logger.error(f"Failed to create database tables: {e}")
         raise
+
 
 @app.on_event("shutdown")
 async def shutdown_event():

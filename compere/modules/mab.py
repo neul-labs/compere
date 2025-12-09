@@ -25,6 +25,7 @@ RECENT_COMPARISON_LIMIT = int(os.getenv("RECENT_COMPARISON_LIMIT", "5"))
 
 router = APIRouter()
 
+
 class UCB:
     def __init__(self, db: Session):
         self.db = db
@@ -36,13 +37,7 @@ class UCB:
         for i, entity in enumerate(entities):
             existing_state = self.db.query(MABState).filter(MABState.entity_id == entity.id).first()
             if not existing_state:
-                mab_state = MABState(
-                    entity_id=entity.id,
-                    arm_index=i,
-                    count=0,
-                    value=0.0,
-                    total_count=0
-                )
+                mab_state = MABState(entity_id=entity.id, arm_index=i, count=0, value=0.0, total_count=0)
                 self.db.add(mab_state)
         self.db.commit()
 
@@ -60,9 +55,11 @@ class UCB:
         for state in states:
             if state.count == 0:
                 # Entities with no comparisons get infinite UCB (prioritize exploration)
-                ucb_scores[state.entity_id] = float('inf')
+                ucb_scores[state.entity_id] = float("inf")
             else:
-                ucb_scores[state.entity_id] = state.value + UCB_EXPLORATION_CONSTANT * sqrt(2 * log(total_count) / state.count)
+                ucb_scores[state.entity_id] = state.value + UCB_EXPLORATION_CONSTANT * sqrt(
+                    2 * log(total_count) / state.count
+                )
 
         return ucb_scores
 
@@ -80,7 +77,7 @@ class UCB:
         for entity in entities:
             score = ucb_scores.get(entity.id, 0)
             # Handle infinite scores (unexplored entities)
-            if score == float('inf'):
+            if score == float("inf"):
                 weights.append(UCB_UNEXPLORED_WEIGHT)  # High weight for unexplored
             else:
                 weights.append(max(score, 0.1))  # Ensure positive weight
@@ -101,9 +98,13 @@ class UCB:
 
         if exclude_recent:
             # Get entities that entity1 was recently compared with
-            recent_comparisons = self.db.query(Comparison).filter(
-                (Comparison.entity1_id == entity1.id) | (Comparison.entity2_id == entity1.id)
-            ).order_by(Comparison.created_at.desc()).limit(min(RECENT_COMPARISON_LIMIT, len(remaining_entities) - 1)).all()
+            recent_comparisons = (
+                self.db.query(Comparison)
+                .filter((Comparison.entity1_id == entity1.id) | (Comparison.entity2_id == entity1.id))
+                .order_by(Comparison.created_at.desc())
+                .limit(min(RECENT_COMPARISON_LIMIT, len(remaining_entities) - 1))
+                .all()
+            )
 
             recent_opponent_ids = set()
             for comp in recent_comparisons:
@@ -166,6 +167,7 @@ class UCB:
 
             self.db.commit()
 
+
 @router.get("/mab/next_comparison", response_model=NextComparisonResponse)
 def get_mab_next_comparison(db: Session = Depends(get_db)):
     """Get next comparison using MAB algorithm"""
@@ -182,6 +184,7 @@ def get_mab_next_comparison(db: Session = Depends(get_db)):
         entity1, entity2 = selected[0], selected[1]
 
     return {"entity1": entity1, "entity2": entity2}
+
 
 @router.post("/mab/update", response_model=MessageResponse)
 def update_mab(comparison_id: int, db: Session = Depends(get_db)):

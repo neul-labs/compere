@@ -1,13 +1,20 @@
 <template>
   <div class="space-y-8">
     <div class="text-center">
-      <h1 class="text-2xl font-bold text-surface-900 mb-2">Leaderboard</h1>
-      <p class="text-surface-500">Rankings based on comparative analysis</p>
+      <h1 class="text-2xl font-bold text-surface-900 mb-2">
+        Leaderboard
+      </h1>
+      <p class="text-surface-500">
+        Rankings based on comparative analysis
+      </p>
     </div>
 
     <div class="max-w-3xl mx-auto">
       <div class="card p-6">
-        <div v-if="rankedEntities.length > 0" class="space-y-4">
+        <div
+          v-if="rankedEntities.length > 0"
+          class="space-y-4"
+        >
           <div
             v-for="(entity, index) in rankedEntities"
             :key="entity.id"
@@ -29,27 +36,45 @@
                 :alt="entity.name"
                 class="w-full h-full object-cover"
               >
-              <div v-else class="w-full h-full flex items-center justify-center">
-                <i class="fas fa-image text-surface-400"></i>
+              <div
+                v-else
+                class="w-full h-full flex items-center justify-center"
+              >
+                <i class="fas fa-image text-surface-400" />
               </div>
             </div>
 
             <div class="flex-1 min-w-0">
-              <h3 class="font-bold text-surface-900 truncate">{{ entity.name }}</h3>
-              <p class="text-sm text-surface-500 truncate">{{ entity.description }}</p>
+              <h3 class="font-bold text-surface-900 truncate">
+                {{ entity.name }}
+              </h3>
+              <p class="text-sm text-surface-500 truncate">
+                {{ entity.description }}
+              </p>
             </div>
 
             <div class="text-right">
-              <p class="text-xl font-bold text-primary-600">{{ formatRating(entity.rating) }}</p>
-              <p class="text-xs text-surface-400">Rating</p>
+              <p class="text-xl font-bold text-primary-600">
+                {{ formatRating(entity.rating) }}
+              </p>
+              <p class="text-xs text-surface-400">
+                Rating
+              </p>
             </div>
           </div>
         </div>
 
-        <div v-else class="text-center py-12">
-          <i class="fas fa-trophy text-5xl text-surface-300 mb-4"></i>
-          <h3 class="text-lg font-bold text-surface-900 mb-2">No Rankings Yet</h3>
-          <p class="text-surface-500">Start comparing entities to see rankings</p>
+        <div
+          v-else
+          class="text-center py-12"
+        >
+          <i class="fas fa-trophy text-5xl text-surface-300 mb-4" />
+          <h3 class="text-lg font-bold text-surface-900 mb-2">
+            No Rankings Yet
+          </h3>
+          <p class="text-surface-500">
+            Start comparing entities to see rankings
+          </p>
         </div>
       </div>
     </div>

@@ -3,11 +3,15 @@
     <!-- Logo -->
     <div class="flex items-center space-x-3 pb-6 border-b border-surface-700">
       <div class="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
-        <i class="fas fa-chart-line text-white text-lg"></i>
+        <i class="fas fa-chart-line text-white text-lg" />
       </div>
       <div>
-        <h2 class="text-lg font-bold">Compere</h2>
-        <p class="text-xs text-surface-400">Rating System</p>
+        <h2 class="text-lg font-bold">
+          Compere
+        </h2>
+        <p class="text-xs text-surface-400">
+          Rating System
+        </p>
       </div>
     </div>
 
@@ -18,7 +22,7 @@
         class="nav-item"
         :class="{ 'nav-item-active': $route.path === '/' }"
       >
-        <i class="fas fa-home w-5"></i>
+        <i class="fas fa-home w-5" />
         <span>Dashboard</span>
       </router-link>
 
@@ -27,7 +31,7 @@
         class="nav-item"
         :class="{ 'nav-item-active': $route.path === '/entities' }"
       >
-        <i class="fas fa-database w-5"></i>
+        <i class="fas fa-database w-5" />
         <span>Entities</span>
       </router-link>
 
@@ -36,7 +40,7 @@
         class="nav-item"
         :class="{ 'nav-item-active': $route.path === '/compare' }"
       >
-        <i class="fas fa-balance-scale w-5"></i>
+        <i class="fas fa-balance-scale w-5" />
         <span>Compare</span>
       </router-link>
 
@@ -45,7 +49,7 @@
         class="nav-item"
         :class="{ 'nav-item-active': $route.path === '/leaderboard' }"
       >
-        <i class="fas fa-trophy w-5"></i>
+        <i class="fas fa-trophy w-5" />
         <span>Leaderboard</span>
       </router-link>
 
@@ -54,7 +58,7 @@
         class="nav-item"
         :class="{ 'nav-item-active': $route.path === '/analytics' }"
       >
-        <i class="fas fa-chart-bar w-5"></i>
+        <i class="fas fa-chart-bar w-5" />
         <span>Analytics</span>
       </router-link>
 
@@ -63,7 +67,7 @@
         class="nav-item"
         :class="{ 'nav-item-active': $route.path === '/simulations' }"
       >
-        <i class="fas fa-play-circle w-5"></i>
+        <i class="fas fa-play-circle w-5" />
         <span>Simulations</span>
       </router-link>
     </div>
@@ -78,9 +82,6 @@
 </template>
 
 <script setup>
-import { useAuthStore } from '../stores/auth.js'
-
-const authStore = useAuthStore()
 </script>
 
 <style scoped>

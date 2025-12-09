@@ -10,7 +10,8 @@ import sys
 import requests
 
 # Add the compere package to the path for library usage
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
 
 def library_usage_example():
     """Demonstrate library usage directly"""
@@ -41,8 +42,16 @@ def library_usage_example():
 
         # Create entities
         entities_data = [
-            {"name": "Burger Palace", "description": "Best burgers in town", "image_urls": ["http://example.com/burger.jpg"]},
-            {"name": "Pizza Corner", "description": "Authentic Italian pizza", "image_urls": ["http://example.com/pizza.jpg"]},
+            {
+                "name": "Burger Palace",
+                "description": "Best burgers in town",
+                "image_urls": ["http://example.com/burger.jpg"],
+            },
+            {
+                "name": "Pizza Corner",
+                "description": "Authentic Italian pizza",
+                "image_urls": ["http://example.com/pizza.jpg"],
+            },
             {"name": "Sushi Zen", "description": "Fresh sushi daily", "image_urls": ["http://example.com/sushi.jpg"]},
         ]
 
@@ -68,11 +77,7 @@ def library_usage_example():
 
         for entity1, entity2, winner in comparisons_data:
             # Create comparison record
-            comparison = Comparison(
-                entity1_id=entity1.id,
-                entity2_id=entity2.id,
-                selected_entity_id=winner.id
-            )
+            comparison = Comparison(entity1_id=entity1.id, entity2_id=entity2.id, selected_entity_id=winner.id)
             db.add(comparison)
             db.commit()
 
@@ -105,6 +110,7 @@ def library_usage_example():
 
     finally:
         db.close()
+
 
 def api_usage_example():
     """Demonstrate API usage"""
@@ -159,7 +165,7 @@ def api_usage_example():
     comparison_data = {
         "entity1_id": entity1["id"],
         "entity2_id": entity2["id"],
-        "selected_entity_id": entity1["id"]  # entity1 wins
+        "selected_entity_id": entity1["id"],  # entity1 wins
     }
 
     response = requests.post(f"{base_url}/comparisons/", json=comparison_data)
@@ -188,6 +194,7 @@ def api_usage_example():
         comparisons = response.json()
         print(f"  Total comparisons: {len(comparisons)}")
 
+
 def configuration_example():
     """Show configuration options"""
     print("\n" + "=" * 50)
@@ -202,7 +209,7 @@ def configuration_example():
         "RATE_LIMIT_REQUESTS": "100",
         "RATE_LIMIT_WINDOW": "60",
         "LOG_LEVEL": "INFO",
-        "ENVIRONMENT": "development"
+        "ENVIRONMENT": "development",
     }
 
     print("Environment variables you can set:")
@@ -220,6 +227,7 @@ def configuration_example():
     print("\nTo enable rate limiting:")
     print("  export RATE_LIMIT_ENABLED=true")
     print("  export RATE_LIMIT_REQUESTS=50")
+
 
 def main():
     """Run all examples"""
@@ -245,6 +253,7 @@ def main():
     print("2. Start server: uv run compere")
     print("3. Visit http://localhost:8090/docs for API documentation")
     print("4. Run tests: uv run pytest")
+
 
 if __name__ == "__main__":
     main()

@@ -1,5 +1,4 @@
 import os
-from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.exc import SQLAlchemyError
@@ -13,6 +12,7 @@ ELO_INITIAL_RATING = float(os.getenv("ELO_INITIAL_RATING", "1500.0"))
 
 router = APIRouter()
 
+
 @router.post("/entities/", response_model=EntityOut)
 def create_entity(entity: EntityCreate, db: Session = Depends(get_db)):
     """Create a new entity"""
@@ -24,14 +24,15 @@ def create_entity(entity: EntityCreate, db: Session = Depends(get_db)):
         return db_entity
     except SQLAlchemyError as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}") from e
 
-@router.get("/entities/", response_model=List[EntityOut])
+
+@router.get("/entities/", response_model=list[EntityOut])
 def list_entities(
     skip: int = Query(0, ge=0, description="Number of entities to skip"),
     limit: int = Query(100, ge=1, le=1000, description="Maximum number of entities to return"),
-    search: Optional[str] = Query(None, description="Search in entity names and descriptions"),
-    db: Session = Depends(get_db)
+    search: str | None = Query(None, description="Search in entity names and descriptions"),
+    db: Session = Depends(get_db),
 ):
     """Get list of entities with optional search and pagination"""
     try:
@@ -39,15 +40,13 @@ def list_entities(
 
         if search:
             search_term = f"%{search}%"
-            query = query.filter(
-                (Entity.name.ilike(search_term)) |
-                (Entity.description.ilike(search_term))
-            )
+            query = query.filter((Entity.name.ilike(search_term)) | (Entity.description.ilike(search_term)))
 
         entities = query.order_by(Entity.rating.desc()).offset(skip).limit(limit).all()
         return entities
     except SQLAlchemyError as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}") from e
+
 
 @router.get("/entities/{entity_id}", response_model=EntityOut)
 def get_entity(entity_id: int, db: Session = Depends(get_db)):
@@ -58,7 +57,8 @@ def get_entity(entity_id: int, db: Session = Depends(get_db)):
             raise HTTPException(status_code=404, detail="Entity not found")
         return db_entity
     except SQLAlchemyError as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}") from e
+
 
 @router.put("/entities/{entity_id}", response_model=EntityOut)
 def update_entity(entity_id: int, entity_update: EntityUpdate, db: Session = Depends(get_db)):
@@ -77,7 +77,8 @@ def update_entity(entity_id: int, entity_update: EntityUpdate, db: Session = Dep
         return db_entity
     except SQLAlchemyError as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}") from e
+
 
 @router.delete("/entities/{entity_id}", response_model=MessageResponse)
 def delete_entity(entity_id: int, db: Session = Depends(get_db)):
@@ -92,4 +93,4 @@ def delete_entity(entity_id: int, db: Session = Depends(get_db)):
         return {"message": "Entity deleted successfully"}
     except SQLAlchemyError as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}") from e

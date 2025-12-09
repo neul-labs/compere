@@ -9,14 +9,14 @@
     ]"
     @click="$emit('navigate')"
   >
-    <i :class="[icon, 'w-5 text-center']"></i>
+    <i :class="[icon, 'w-5 text-center']" />
     <span>{{ label }}</span>
 
     <!-- Active indicator -->
     <div
       v-if="isActive"
       class="w-2 h-2 bg-white rounded-full ml-auto opacity-80"
-    ></div>
+    />
   </router-link>
 </template>
 

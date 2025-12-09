@@ -3,11 +3,11 @@
     <!-- User Avatar/Login Button -->
     <button
       v-if="authStore.isAuthenticated"
-      @click="showMenu = !showMenu"
       :class="[
         'btn',
         showMenu ? 'btn-primary' : 'btn-ghost'
       ]"
+      @click="showMenu = !showMenu"
     >
       <div class="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
         <span class="text-white text-sm font-bold">
@@ -15,7 +15,10 @@
         </span>
       </div>
       <span class="hidden md:inline ml-2 text-surface-700">{{ authStore.user?.username }}</span>
-      <i class="fas fa-chevron-down ml-2 transition-transform text-surface-500" :class="{ 'rotate-180': showMenu }"></i>
+      <i
+        class="fas fa-chevron-down ml-2 transition-transform text-surface-500"
+        :class="{ 'rotate-180': showMenu }"
+      />
     </button>
 
     <router-link
@@ -23,7 +26,7 @@
       to="/auth"
       class="btn btn-primary"
     >
-      <i class="fas fa-sign-in-alt"></i>
+      <i class="fas fa-sign-in-alt" />
       <span class="hidden sm:inline ml-2">Login</span>
     </router-link>
 
@@ -42,7 +45,9 @@
             </span>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="font-semibold text-surface-900 truncate">{{ authStore.user?.username }}</p>
+            <p class="font-semibold text-surface-900 truncate">
+              {{ authStore.user?.username }}
+            </p>
             <p class="text-sm text-surface-500 truncate">
               {{ authStore.user?.email || 'Compere User' }}
             </p>
@@ -56,38 +61,38 @@
       <!-- Menu Items -->
       <div class="p-2">
         <button
-          @click="viewProfile"
           class="w-full text-left px-3 py-2 rounded-lg hover:bg-surface-100 transition-colors flex items-center space-x-3 text-surface-700"
+          @click="viewProfile"
         >
-          <i class="fas fa-user w-5"></i>
+          <i class="fas fa-user w-5" />
           <span>Profile</span>
         </button>
 
         <button
-          @click="viewSettings"
           class="w-full text-left px-3 py-2 rounded-lg hover:bg-surface-100 transition-colors flex items-center space-x-3 text-surface-700"
+          @click="viewSettings"
         >
-          <i class="fas fa-cog w-5"></i>
+          <i class="fas fa-cog w-5" />
           <span>Settings</span>
         </button>
 
         <hr class="my-2 border-surface-200">
 
         <button
-          @click="toggleTheme"
           class="w-full text-left px-3 py-2 rounded-lg hover:bg-surface-100 transition-colors flex items-center space-x-3 text-surface-700"
+          @click="toggleTheme"
         >
-          <i :class="['fas', isDark ? 'fa-sun' : 'fa-moon', 'w-5']"></i>
+          <i :class="['fas', isDark ? 'fa-sun' : 'fa-moon', 'w-5']" />
           <span>{{ isDark ? 'Light Mode' : 'Dark Mode' }}</span>
         </button>
 
         <hr class="my-2 border-surface-200">
 
         <button
-          @click="logout"
           class="w-full text-left px-3 py-2 rounded-lg hover:bg-red-50 transition-colors flex items-center space-x-3 text-red-600"
+          @click="logout"
         >
-          <i class="fas fa-sign-out-alt w-5"></i>
+          <i class="fas fa-sign-out-alt w-5" />
           <span>Logout</span>
         </button>
       </div>
@@ -96,9 +101,9 @@
     <!-- Backdrop -->
     <div
       v-if="showMenu"
-      @click="showMenu = false"
       class="fixed inset-0 z-40"
-    ></div>
+      @click="showMenu = false"
+    />
   </div>
 </template>
 

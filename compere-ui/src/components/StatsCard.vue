@@ -1,18 +1,24 @@
 <template>
   <div class="card p-6 hover-lift">
     <!-- Loading State -->
-    <div v-if="loading" class="animate-pulse">
+    <div
+      v-if="loading"
+      class="animate-pulse"
+    >
       <div class="flex items-center space-x-4">
-        <div class="w-12 h-12 bg-surface-300 rounded-full"></div>
+        <div class="w-12 h-12 bg-surface-300 rounded-full" />
         <div class="space-y-2 flex-1">
-          <div class="h-4 bg-surface-300 rounded w-24"></div>
-          <div class="h-6 bg-surface-300 rounded w-16"></div>
+          <div class="h-4 bg-surface-300 rounded w-24" />
+          <div class="h-6 bg-surface-300 rounded w-16" />
         </div>
       </div>
     </div>
 
     <!-- Content -->
-    <div v-else class="flex items-center space-x-4">
+    <div
+      v-else
+      class="flex items-center space-x-4"
+    >
       <!-- Icon -->
       <div
         :class="[
@@ -20,24 +26,29 @@
           getColorClass(color)
         ]"
       >
-        <i :class="icon"></i>
+        <i :class="icon" />
       </div>
 
       <!-- Stats -->
       <div class="flex-1">
-        <p class="text-surface-500 font-medium">{{ title }}</p>
+        <p class="text-surface-500 font-medium">
+          {{ title }}
+        </p>
         <p class="text-2xl font-bold text-surface-900">
           {{ formatValue(value) }}
         </p>
 
         <!-- Change Indicator (if provided) -->
-        <div v-if="change !== undefined" class="flex items-center space-x-1 mt-1">
+        <div
+          v-if="change !== undefined"
+          class="flex items-center space-x-1 mt-1"
+        >
           <i
             :class="[
               'fas text-xs',
               change >= 0 ? 'fa-arrow-up text-green-500' : 'fa-arrow-down text-red-500'
             ]"
-          ></i>
+          />
           <span
             :class="[
               'text-xs font-medium',
@@ -54,7 +65,7 @@
 </template>
 
 <script setup>
-const props = defineProps({
+defineProps({
   title: {
     type: String,
     required: true

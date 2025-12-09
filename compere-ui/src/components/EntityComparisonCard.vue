@@ -18,7 +18,7 @@
           v-else
           class="w-full h-full flex items-center justify-center text-surface-400"
         >
-          <i class="fas fa-image text-4xl"></i>
+          <i class="fas fa-image text-4xl" />
         </div>
       </div>
 
@@ -39,7 +39,7 @@
         v-if="loading"
         class="absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg"
       >
-        <div class="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+        <div class="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin" />
       </div>
     </div>
 
@@ -57,7 +57,7 @@
       <!-- Metadata -->
       <div class="flex items-center justify-between text-sm">
         <div class="flex items-center space-x-2 text-surface-400">
-          <i class="fas fa-star"></i>
+          <i class="fas fa-star" />
           <span>Rating</span>
         </div>
         <div :class="['font-bold', getRatingColor(entity.rating)]">
@@ -70,8 +70,14 @@
         :disabled="loading"
         class="w-full btn btn-primary mt-4"
       >
-        <i v-if="loading" class="fas fa-spinner fa-spin"></i>
-        <i v-else class="fas fa-hand-pointer"></i>
+        <i
+          v-if="loading"
+          class="fas fa-spinner fa-spin"
+        />
+        <i
+          v-else
+          class="fas fa-hand-pointer"
+        />
         <span class="ml-2">{{ loading ? 'Selecting...' : 'Choose This' }}</span>
       </button>
     </div>
