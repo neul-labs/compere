@@ -1,0 +1,64 @@
+# Compere Docker Compose Configuration
+# Usage:
+#   Development: docker-compose up
+#   With UI:     docker-compose --profile with-ui up
+#   Production:  docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
+
+services:
+  compere:
+    build: .
+    ports:
+      - "8090:8090"
+    environment:
+      - DATABASE_URL=postgresql://compere:${POSTGRES_PASSWORD:-compere}@db:5432/compere
+      - SECRET_KEY=${SECRET_KEY:-}
+      - AUTH_ENABLED=${AUTH_ENABLED:-false}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
+      - RATE_LIMIT_ENABLED=${RATE_LIMIT_ENABLED:-true}
+      - RATE_LIMIT_REQUESTS=${RATE_LIMIT_REQUESTS:-100}
+      - RATE_LIMIT_WINDOW=${RATE_LIMIT_WINDOW:-60}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=compere
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-compere}
+      - POSTGRES_DB=compere
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U compere"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Frontend service (optional, use --profile with-ui)
+  ui:
+    build:
+      context: ./compere-ui
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8090
+    depends_on:
+      - compere
+    profiles:
+      - with-ui
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

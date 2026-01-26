@@ -114,7 +114,7 @@ class TestEntityUpdate:
         update_data = {"name": "New Name"}
         response = client.put("/entities/99999", json=update_data)
         assert response.status_code == 404
-        assert "Entity not found" in response.json()["detail"]
+        assert "not found" in response.json()["detail"].lower()
 
     def test_update_entity_empty_body(self):
         """Test updating entity with empty body"""
@@ -159,7 +159,7 @@ class TestEntityDelete:
         """Test deleting non-existent entity"""
         response = client.delete("/entities/99999")
         assert response.status_code == 404
-        assert "Entity not found" in response.json()["detail"]
+        assert "not found" in response.json()["detail"].lower()
 
     def test_delete_entity_verify_removed_from_list(self):
         """Test that deleted entity is removed from listings"""

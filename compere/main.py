@@ -1,14 +1,17 @@
 # main.py
 import logging
+from datetime import UTC, datetime
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 from .modules.auth import router as AuthRouter
 from .modules.comparison import router as ComparisonRouter
-from .modules.config import get_config
-from .modules.database import Base, engine
+from .modules.config import get_config, get_cors_origins
+from .modules.database import Base, engine, get_db
 from .modules.entity import router as EntityRouter
 from .modules.mab import router as MABRouter
 from .modules.middleware import create_logging_middleware, create_rate_limit_middleware
@@ -16,6 +19,7 @@ from .modules.models import (  # noqa: F401 - Import models to register them wit
     Comparison,
     Entity,
     MABState,
+    User,
 )
 from .modules.rating import router as RatingRouter
 from .modules.similarity import router as SimilarityRouter
@@ -32,14 +36,19 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# Add middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Add CORS middleware with configurable origins
+cors_origins = get_cors_origins()
+if cors_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=cors_origins,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=["*"],
+    )
+    logger.info(f"CORS enabled for origins: {cors_origins}")
+else:
+    logger.warning("CORS not configured - no cross-origin requests allowed")
 
 # Add rate limiting middleware
 rate_limit_middleware = create_rate_limit_middleware()
@@ -68,6 +77,36 @@ app.include_router(ComparisonRouter)
 app.include_router(RatingRouter)
 app.include_router(SimilarityRouter)
 app.include_router(MABRouter)
+
+
+# Health check endpoints
+@app.get("/health", tags=["health"])
+async def health_check() -> dict:
+    """Basic health check endpoint for load balancers and monitoring."""
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now(UTC).isoformat(),
+        "version": app.version,
+    }
+
+
+@app.get("/health/ready", tags=["health"])
+async def readiness_check(db: Session = Depends(get_db)) -> dict:
+    """Readiness check - verifies database connectivity."""
+    try:
+        # Simple query to verify DB connection
+        db.execute(text("SELECT 1"))
+        return {
+            "status": "ready",
+            "database": "connected",
+            "timestamp": datetime.now(UTC).isoformat(),
+        }
+    except Exception as e:
+        logger.error(f"Readiness check failed: {e}")
+        raise HTTPException(
+            status_code=503,
+            detail={"status": "not ready", "database": "disconnected"},
+        ) from e
 
 
 @app.on_event("startup")

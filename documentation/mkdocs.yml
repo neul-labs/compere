@@ -1,0 +1,105 @@
+site_name: Compere Documentation
+site_description: A comparative rating system using Multi-Armed Bandit algorithms and Elo ratings
+site_url: https://terraprompt.github.io/compere/
+repo_url: https://github.com/terraprompt/compere
+repo_name: terraprompt/compere
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  icon:
+    repo: fontawesome/brands/github
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - getting-started/index.md
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+    - First Comparison: getting-started/first-comparison.md
+  - User Guide:
+    - user-guide/index.md
+    - API Reference: user-guide/api-reference.md
+    - Library Usage: user-guide/library-usage.md
+    - Configuration: user-guide/configuration.md
+  - Concepts:
+    - concepts/index.md
+    - Elo Rating System: concepts/elo-rating.md
+    - MAB Algorithm: concepts/mab-algorithm.md
+    - Entity Pairing: concepts/entity-pairing.md
+  - Deployment:
+    - deployment/index.md
+    - Docker: deployment/docker.md
+    - Production Guide: deployment/production.md
+    - Troubleshooting: deployment/troubleshooting.md
+  - Development:
+    - development/index.md
+    - Contributing: development/contributing.md
+    - Testing: development/testing.md
+    - Architecture: development/architecture.md
+  - Security: security.md
+  - FAQ: faq.md
+
+plugins:
+  - search
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.arithmatex:
+      generic: true
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/terraprompt/compere
+  version:
+    provider: mike
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+copyright: Copyright &copy; 2025 Skelf Research

@@ -1,11 +1,11 @@
-import os
-
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# Database setup - default to SQLite if no DATABASE_URL is provided
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./compere.db")
+from .config import get_database_url
+
+# Database setup - get URL from centralized config
+SQLALCHEMY_DATABASE_URL = get_database_url()
 
 # For SQLite, we need to set check_same_thread to False
 # For other databases, we don't need this parameter

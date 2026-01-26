@@ -1,22 +1,21 @@
-import os
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from .config import get_elo_k_factor
 from .database import get_db
 from .models import Entity, EntityOut
 
 router = APIRouter()
 
-# Configurable K-factor for Elo rating system
-K_FACTOR = float(os.getenv("ELO_K_FACTOR", "32.0"))
 
-
-def expected_score(rating_a, rating_b):
+def expected_score(rating_a: float, rating_b: float) -> float:
+    """Calculate expected score for entity A against entity B."""
     return 1 / (1 + 10 ** ((rating_b - rating_a) / 400))
 
 
-def update_elo_ratings(db: Session, entity1: Entity, entity2: Entity, winner_id: int):
+def update_elo_ratings(db: Session, entity1: Entity, entity2: Entity, winner_id: int) -> None:
+    """Update Elo ratings for two entities based on comparison result."""
+    k_factor = get_elo_k_factor()
     expected_a = expected_score(entity1.rating, entity2.rating)
     expected_b = 1 - expected_a
 
@@ -27,8 +26,8 @@ def update_elo_ratings(db: Session, entity1: Entity, entity2: Entity, winner_id:
     else:
         score_a, score_b = 0.5, 0.5
 
-    entity1.rating += K_FACTOR * (score_a - expected_a)
-    entity2.rating += K_FACTOR * (score_b - expected_b)
+    entity1.rating += k_factor * (score_a - expected_a)
+    entity2.rating += k_factor * (score_b - expected_b)
 
     db.commit()
 

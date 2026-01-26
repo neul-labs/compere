@@ -12,7 +12,14 @@ import pytest
 # Add the compere package to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+import compere.modules.config as config_module
 from compere.modules.config import get_config, setup_logging, validate_environment
+
+
+def clear_config_cache():
+    """Clear the config cache to allow fresh environment reads."""
+    config_module.get_config.cache_clear()
+    config_module._config = None
 
 
 class TestValidateEnvironment:
@@ -254,24 +261,30 @@ class TestGetConfig:
 
     def test_get_config_success(self):
         """Test get_config with valid configuration"""
+        clear_config_cache()
         with patch.dict(os.environ, {}, clear=True):
             config = get_config()
             assert config["validation_passed"] is True
             assert "database_url" in config
+        clear_config_cache()
 
     def test_get_config_exits_on_error(self):
         """Test get_config exits on validation errors"""
+        clear_config_cache()
         with patch.dict(os.environ, {"ELO_K_FACTOR": "not_a_number"}, clear=True):
             with pytest.raises(SystemExit) as exc_info:
                 get_config()
             assert exc_info.value.code == 1
+        clear_config_cache()
 
     def test_get_config_prints_warnings(self, capsys):
         """Test get_config prints warnings"""
+        clear_config_cache()
         with patch.dict(os.environ, {"ENVIRONMENT": "custom_env"}, clear=True):
             config = get_config()
             captured = capsys.readouterr()
             assert "WARNING" in captured.out or config["validation_warnings"]
+        clear_config_cache()
 
 
 if __name__ == "__main__":

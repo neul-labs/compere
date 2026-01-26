@@ -1,10 +1,25 @@
 from datetime import datetime
 
 from pydantic import BaseModel, validator
-from sqlalchemy import JSON, Column, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy import JSON, Boolean, Column, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.sql import func
 
 from .database import Base
+
+
+class User(Base):
+    """User model for authentication."""
+
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True, nullable=False)
+    email = Column(String, unique=True, index=True, nullable=True)
+    full_name = Column(String, nullable=True)
+    hashed_password = Column(String, nullable=False)
+    disabled = Column(Boolean, default=False)
+    is_superuser = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
 class Entity(Base):
@@ -139,3 +154,36 @@ class MessageResponse(BaseModel):
 class NextComparisonResponse(BaseModel):
     entity1: EntityOut
     entity2: EntityOut
+
+
+# User schemas for authentication
+class UserBase(BaseModel):
+    username: str
+    email: str | None = None
+    full_name: str | None = None
+
+
+class UserCreate(UserBase):
+    password: str
+
+
+class UserOut(UserBase):
+    id: int
+    disabled: bool
+    is_superuser: bool
+
+    class Config:
+        from_attributes = True
+
+
+class UserInDB(UserOut):
+    hashed_password: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    username: str | None = None

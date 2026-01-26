@@ -1,10 +1,10 @@
-import os
 import random
 from math import log, sqrt
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from .config import get_pairing_config, get_ucb_config
 from .database import get_db
 from .models import (
     Comparison,
@@ -14,21 +14,14 @@ from .models import (
     NextComparisonResponse,
 )
 
-# UCB/MAB Configuration
-UCB_EXPLORATION_CONSTANT = float(os.getenv("UCB_EXPLORATION_CONSTANT", "1.414"))
-UCB_UNEXPLORED_WEIGHT = float(os.getenv("UCB_UNEXPLORED_WEIGHT", "1000.0"))
-PAIRING_UCB_WEIGHT = float(os.getenv("PAIRING_UCB_WEIGHT", "0.3"))
-PAIRING_SIMILARITY_WEIGHT = float(os.getenv("PAIRING_SIMILARITY_WEIGHT", "0.4"))
-PAIRING_RANDOM_WEIGHT = float(os.getenv("PAIRING_RANDOM_WEIGHT", "0.3"))
-PAIRING_RATING_THRESHOLD = float(os.getenv("PAIRING_RATING_THRESHOLD", "200.0"))
-RECENT_COMPARISON_LIMIT = int(os.getenv("RECENT_COMPARISON_LIMIT", "5"))
-
 router = APIRouter()
 
 
 class UCB:
     def __init__(self, db: Session):
         self.db = db
+        self._ucb_config = get_ucb_config()
+        self._pairing_config = get_pairing_config()
         self._initialize_states()
 
     def _initialize_states(self):
@@ -41,7 +34,7 @@ class UCB:
                 self.db.add(mab_state)
         self.db.commit()
 
-    def get_ucb_scores(self):
+    def get_ucb_scores(self) -> dict[int, float]:
         """Calculate UCB scores for all entities"""
         states = self.db.query(MABState).all()
         if not states:
@@ -51,25 +44,28 @@ class UCB:
         if total_count == 0:
             total_count = 1  # Avoid log(0)
 
+        exploration_constant = self._ucb_config["exploration_constant"]
         ucb_scores = {}
         for state in states:
             if state.count == 0:
                 # Entities with no comparisons get infinite UCB (prioritize exploration)
                 ucb_scores[state.entity_id] = float("inf")
             else:
-                ucb_scores[state.entity_id] = state.value + UCB_EXPLORATION_CONSTANT * sqrt(
+                ucb_scores[state.entity_id] = state.value + exploration_constant * sqrt(
                     2 * log(total_count) / state.count
                 )
 
         return ucb_scores
 
-    def select_pair(self, exclude_recent=True):
+    def select_pair(self, exclude_recent: bool = True) -> tuple[Entity | None, Entity | None]:
         """Select a pair of entities for comparison using UCB"""
         entities = self.db.query(Entity).all()
         if len(entities) < 2:
             return None, None
 
         ucb_scores = self.get_ucb_scores()
+        unexplored_weight = self._ucb_config["unexplored_weight"]
+        pairing = self._pairing_config
 
         # Select first entity using weighted random based on UCB scores
         # This adds exploration while still favoring high UCB entities
@@ -78,7 +74,7 @@ class UCB:
             score = ucb_scores.get(entity.id, 0)
             # Handle infinite scores (unexplored entities)
             if score == float("inf"):
-                weights.append(UCB_UNEXPLORED_WEIGHT)  # High weight for unexplored
+                weights.append(unexplored_weight)  # High weight for unexplored
             else:
                 weights.append(max(score, 0.1))  # Ensure positive weight
 
@@ -95,6 +91,7 @@ class UCB:
         # 3. Add some randomness for variety
 
         remaining_entities = [e for e in entities if e.id != entity1.id]
+        recent_limit = int(pairing["recent_comparison_limit"])
 
         if exclude_recent:
             # Get entities that entity1 was recently compared with
@@ -102,7 +99,7 @@ class UCB:
                 self.db.query(Comparison)
                 .filter((Comparison.entity1_id == entity1.id) | (Comparison.entity2_id == entity1.id))
                 .order_by(Comparison.created_at.desc())
-                .limit(min(RECENT_COMPARISON_LIMIT, len(remaining_entities) - 1))
+                .limit(min(recent_limit, len(remaining_entities) - 1))
                 .all()
             )
 
@@ -120,20 +117,25 @@ class UCB:
 
         # Score remaining entities for selection
         entity_scores = []
+        rating_threshold = pairing["rating_threshold"]
+        ucb_weight = pairing["ucb_weight"]
+        similarity_weight = pairing["similarity_weight"]
+        random_weight = pairing["random_weight"]
+
         for entity in remaining_entities:
-            score = 0
+            score = 0.0
 
             # Factor 1: UCB score (exploration value)
-            score += ucb_scores.get(entity.id, 0) * PAIRING_UCB_WEIGHT
+            score += ucb_scores.get(entity.id, 0) * ucb_weight
 
             # Factor 2: Rating similarity (more informative comparisons)
             rating_diff = abs(entity1.rating - entity.rating)
             # Prefer entities within threshold rating points
-            if rating_diff < PAIRING_RATING_THRESHOLD:
-                score += (PAIRING_RATING_THRESHOLD - rating_diff) / PAIRING_RATING_THRESHOLD * PAIRING_SIMILARITY_WEIGHT
+            if rating_diff < rating_threshold:
+                score += (rating_threshold - rating_diff) / rating_threshold * similarity_weight
 
             # Factor 3: Randomness for variety
-            score += random.random() * PAIRING_RANDOM_WEIGHT
+            score += random.random() * random_weight
 
             entity_scores.append((entity, score))
 

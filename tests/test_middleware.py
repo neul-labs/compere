@@ -23,6 +23,14 @@ from compere.modules.middleware import (
 )
 
 
+def clear_config_cache():
+    """Clear the config cache to allow fresh environment reads."""
+    import compere.modules.config as config_module
+
+    config_module.get_config.cache_clear()
+    config_module._config = None
+
+
 class TestRateLimitMiddleware:
     """Test rate limiting middleware"""
 
@@ -212,14 +220,17 @@ class TestMiddlewareFactory:
 
     def test_create_rate_limit_middleware_default(self):
         """Test creating rate limit middleware with defaults"""
+        clear_config_cache()
         with patch.dict(os.environ, {}, clear=True):
             middleware = create_rate_limit_middleware()
             assert middleware.calls == 100
             assert middleware.period == 60
             assert middleware.enabled is False
+        clear_config_cache()  # Clean up after test
 
     def test_create_rate_limit_middleware_enabled(self):
         """Test creating rate limit middleware when enabled"""
+        clear_config_cache()
         with patch.dict(
             os.environ,
             {
@@ -227,23 +238,29 @@ class TestMiddlewareFactory:
                 "RATE_LIMIT_REQUESTS": "50",
                 "RATE_LIMIT_WINDOW": "120",
             },
+            clear=True,
         ):
             middleware = create_rate_limit_middleware()
             assert middleware.calls == 50
             assert middleware.period == 120
             assert middleware.enabled is True
+        clear_config_cache()  # Clean up after test
 
     def test_create_logging_middleware_default(self):
         """Test creating logging middleware with defaults"""
+        clear_config_cache()
         with patch.dict(os.environ, {}, clear=True):
             middleware = create_logging_middleware()
             assert middleware.enabled is True  # Default is true
+        clear_config_cache()  # Clean up after test
 
     def test_create_logging_middleware_disabled(self):
         """Test creating logging middleware when disabled"""
-        with patch.dict(os.environ, {"LOG_REQUESTS": "false"}):
+        clear_config_cache()
+        with patch.dict(os.environ, {"LOG_REQUESTS": "false"}, clear=True):
             middleware = create_logging_middleware()
             assert middleware.enabled is False
+        clear_config_cache()  # Clean up after test
 
 
 class TestRateLimitCleanup:

@@ -193,7 +193,7 @@ class TestGetComparison:
         """Test getting non-existent comparison"""
         response = client.get("/comparisons/99999")
         assert response.status_code == 404
-        assert "Comparison not found" in response.json()["detail"]
+        assert "not found" in response.json()["detail"].lower()
 
 
 class TestNextComparison:

@@ -3,7 +3,6 @@ Middleware for rate limiting and other cross-cutting concerns
 """
 
 import logging
-import os
 import time
 from collections import defaultdict, deque
 
@@ -98,11 +97,11 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         return response
 
 
-def create_rate_limit_middleware():
+def create_rate_limit_middleware() -> RateLimitMiddleware:
     """Create rate limiting middleware with configuration"""
-    enabled = os.getenv("RATE_LIMIT_ENABLED", "false").lower() == "true"
-    calls = int(os.getenv("RATE_LIMIT_REQUESTS", "100"))
-    period = int(os.getenv("RATE_LIMIT_WINDOW", "60"))
+    from .config import get_rate_limit_config
+
+    enabled, calls, period = get_rate_limit_config()
 
     return RateLimitMiddleware(
         app=None,  # Will be set by FastAPI
@@ -112,9 +111,11 @@ def create_rate_limit_middleware():
     )
 
 
-def create_logging_middleware():
+def create_logging_middleware() -> LoggingMiddleware:
     """Create logging middleware with configuration"""
-    enabled = os.getenv("LOG_REQUESTS", "true").lower() == "true"
+    from .config import is_log_requests_enabled
+
+    enabled = is_log_requests_enabled()
 
     return LoggingMiddleware(
         app=None,  # Will be set by FastAPI
